@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">OPPA</string>
+    <string name="title_activity_main">OPPA</string>
+    <string name="package_name">br.org.oppa.tablet</string>
+    <string name="custom_url_scheme">br.org.oppa.tablet</string>
+</resources>

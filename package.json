@@ -3,21 +3,28 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --port 4400",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "android:test": "ng build --configuration development && npx cap sync android && npx cap open android",
+    "android:release": "ng build && npx cap sync android && npx cap open android"
   },
   "private": true,
   "packageManager": "npm@11.12.1",
   "dependencies": {
+    "@angular/cdk": "^21.2.14",
     "@angular/common": "^21.2.0",
     "@angular/compiler": "^21.2.0",
     "@angular/core": "^21.2.0",
     "@angular/forms": "^21.2.0",
     "@angular/platform-browser": "^21.2.0",
     "@angular/router": "^21.2.0",
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/cli": "^8.6.0",
+    "@capacitor/core": "^8.6.0",
     "rxjs": "~7.8.0",
+    "socket.io-client": "^4.8.4",
     "tslib": "^2.3.0"
   },
   "devDependencies": {

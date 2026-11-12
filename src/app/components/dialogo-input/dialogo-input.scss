@@ -1,0 +1,325 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+}
+
+.modal-card {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #03396c;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid rgba(228, 228, 228, 0.9);
+  box-shadow: 2px 2px 2px 2px rgba(228, 228, 228, 0.2);
+  z-index: 1001;
+  min-width: min(400px, 92vw);
+  max-width: 92%;
+  color: #e0e8e6;
+
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: start;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.modal-image {
+  width: 64px;
+  height: 64px;
+  color: #2196f3;
+}
+
+.modal-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.modal-usuario {
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.modal-mensagem {
+  font-size: 1rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.4;
+}
+
+/* Casas do PIN */
+.pin-display {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.pin-casa {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  display: grid;
+  place-items: center;
+  transition:
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.pin-casa.preenchida {
+  border-color: #2196f3;
+  transform: scale(1.08);
+}
+
+.pin-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #2196f3;
+  animation: aparecer 0.15s ease;
+}
+
+@keyframes aparecer {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Tremer quando houver erro de validação */
+.pin-display.shake {
+  animation: tremer 0.4s ease;
+}
+
+@keyframes tremer {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-8px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-6px);
+  }
+  80% {
+    transform: translateX(6px);
+  }
+}
+
+/* Erros de validação */
+.pin-erros {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-top: 8px;
+  color: #ff5c5c;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Teclado numérico (terminais touch) */
+.pin-teclado {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.tecla {
+  height: clamp(48px, 7dvh, 58px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-white);
+  font-size: 1.2rem;
+  font-weight: 600;
+  font-family: 'Roboto Mono', 'Roboto', monospace;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition:
+    background-color 0.15s ease,
+    transform 0.1s ease;
+}
+
+.tecla:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.tecla:active {
+  transform: scale(0.95);
+}
+
+.tecla:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tecla-acao {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 1.05rem;
+}
+
+.tecla app-icone-svg {
+  font-size: 1.5rem;
+}
+
+/* Rodapé */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.modal-btn {
+  width: 100%;
+  max-width: 120px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: #2196f3;
+  color: #e0e8e6;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+.btn-secondary {
+  background: none;
+  border: 1px solid #6c757d;
+  color: #e0e8e6;
+}
+
+.btn-secondary:hover {
+  background: #6c757d;
+}
+
+.btn-primary {
+  background: #1e88e5;
+  color: #e0e8e6;
+}
+
+.btn-primary:hover {
+  background: #5accff;
+}
+
+.modal-btn:active {
+  transform: scale(0.98);
+}
+
+.modal-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--color-white);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Campo de entrada (código) */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  margin-top: 6px;
+  text-align: center;
+}
+
+.campo-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.campo-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 12px;
+  color: #e0e8e6;
+  font-family: 'Roboto Mono', 'Roboto', monospace;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-align: center;
+  outline: none;
+  caret-color: #2196f3;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.campo-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+  font-weight: 400;
+  letter-spacing: normal;
+}
+
+.campo-input::selection {
+  background: rgba(33, 150, 243, 0.4);
+}
+
+.campo-input:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.campo-input:focus {
+  border-color: #2196f3;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.25);
+}
+
+.campo-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Gancho opcional para erro de validação */
+.campo-input.invalido {
+  border-color: #ff5c5c;
+  box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.18);
+}

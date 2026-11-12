@@ -1,0 +1,483 @@
+:host {
+  --bg: #03396c;
+  --card: #011f4b;
+  --border: rgba(255, 255, 255, 0.18);
+  --text: #e0e8e6;
+  --muted: rgba(255, 255, 255, 0.7);
+  --primary: #2196f3;
+  --producing: #00ff66;
+  --fail: #ff4444;
+  --stopped: #ffcc33;
+
+  --gap: clamp(0.5rem, 1.6dvh, 1rem);
+  --btn-h: clamp(44px, 7.5dvh, 58px);
+
+  display: block;
+  height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font-family:
+    'Roboto',
+    system-ui,
+    -apple-system,
+    sans-serif;
+  overflow: hidden;
+}
+
+/* SHELL: header | conteúdo (ocupa o resto) | rodapé */
+.app-shell {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  height: 100%;
+  box-sizing: border-box;
+  padding: var(--gap) clamp(0.75rem, 2vw, 1.5rem);
+  gap: var(--gap);
+}
+
+/* HEADER */
+.header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding-bottom: var(--gap);
+  border-bottom: 1px solid var(--border);
+
+  .brand {
+    justify-self: start;
+    .logo {
+      height: 40px;
+    }
+  }
+
+  .logo {
+    font-size: clamp(1.1rem, 3dvh, 1.6rem);
+    font-weight: 700;
+    letter-spacing: 2px;
+  }
+
+  .company {
+    margin: 0;
+    font-size: clamp(1rem, 2.6dvh, 1.4rem);
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.icon-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  width: clamp(44px, 6dvh, 52px);
+  height: clamp(44px, 6dvh, 52px);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+
+  svg {
+    width: 50%;
+    height: 50%;
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+/* MENU DO CABEÇALHO (hambúrguer) */
+.menu-wrapper {
+  position: relative;
+  justify-self: end;
+}
+
+.header-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 50;
+  min-width: clamp(220px, 28vw, 280px);
+  list-style: none;
+  margin: 0;
+  padding: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  background: #0f4275;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+}
+
+.menu-item {
+  width: 100%;
+  min-height: clamp(44px, 6.5dvh, 52px);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1rem;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  font-size: clamp(0.85rem, 2.2dvh, 1rem);
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  .menu-icon {
+    width: 1.25em;
+    height: 1.25em;
+    flex-shrink: 0;
+  }
+}
+
+/* CONTEÚDO: duas colunas */
+.content {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 2fr);
+  gap: var(--gap);
+}
+
+/* COLUNA ESQUERDA */
+.column-left {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  gap: var(--gap);
+  min-height: 0;
+  min-width: 0;
+}
+
+/* COLUNA DIREITA */
+.column-right {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--gap);
+  min-height: 0;
+  min-width: 0;
+}
+
+.row-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  gap: var(--gap);
+}
+
+/* CARDS */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: clamp(0.6rem, 1.8dvh, 1.2rem) clamp(0.8rem, 1.6vw, 1.25rem);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  transition: border-color 0.3s ease;
+}
+
+/* Realce do card por estado (classes vindas do cardClass()) */
+.card.card-produzindo {
+  border-color: var(--producing);
+}
+
+.card.card-parado {
+  border-color: var(--stopped);
+}
+
+.card.card-falha {
+  border-color: var(--fail);
+}
+
+.card-title {
+  flex-shrink: 0;
+  margin: 0 0 clamp(0.4rem, 1.2dvh, 0.8rem);
+  font-size: clamp(0.9rem, 2.2dvh, 1.1rem);
+  font-weight: 600;
+}
+
+/* INFORMAÇÕES */
+.info-list {
+  margin: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+
+  > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: clamp(0.2rem, 0.8dvh, 0.4rem) 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  > div:last-child {
+    border-bottom: none;
+  }
+
+  dt {
+    color: var(--muted);
+    font-size: clamp(0.8rem, 2dvh, 0.95rem);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 500;
+    text-align: right;
+    font-size: clamp(0.85rem, 2.2dvh, 1rem);
+  }
+}
+
+/* ESTADO DA MÁQUINA */
+.status-row {
+  display: flex;
+  gap: 0.9rem;
+  align-items: center;
+}
+
+/* ÍCONE DINÂMICO POR ESTADO */
+.state-icon {
+  display: inline-flex;
+  width: clamp(40px, 6.5dvh, 52px);
+  height: clamp(40px, 6.5dvh, 52px);
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  svg {
+    width: 50%;
+    height: 50%;
+  }
+}
+
+/* Cores por estado (usam as variáveis do :host) */
+.icon-produzindo {
+  color: var(--producing);
+  animation: girar 4s linear infinite;
+}
+
+.icon-falha {
+  color: var(--fail);
+  animation: pulsar 1.2s ease-in-out infinite;
+}
+
+.icon-parada {
+  color: var(--stopped);
+}
+
+.icon-sem-estado {
+  color: var(--muted);
+}
+
+/* Engrenagem girando enquanto produz */
+@keyframes girar {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Alerta pulsando na falha */
+@keyframes pulsar {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.status-label {
+  margin: 0 0 0.25rem;
+  font-size: clamp(0.9rem, 2.2dvh, 1.05rem);
+}
+
+.muted {
+  margin: 0.15rem 0;
+  color: var(--muted);
+  font-size: clamp(0.8rem, 2dvh, 0.95rem);
+}
+
+.mono {
+  font-variant-numeric: tabular-nums;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.state-text {
+  font-weight: 700;
+
+  &.produzindo {
+    color: var(--producing);
+  }
+  &.falha {
+    color: var(--fail);
+  }
+  &.parado {
+    color: var(--stopped);
+  }
+}
+
+/* BOTÕES */
+.pill-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0 1rem;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #5fb0ff 0%, #2d86e6 100%);
+  color: #fff;
+  font-size: clamp(0.85rem, 2.2dvh, 1rem);
+  font-weight: 600;
+  cursor: pointer;
+  height: var(--btn-h);
+  min-height: var(--btn-h);
+  white-space: nowrap;
+  transition:
+    filter 0.15s ease,
+    transform 0.1s ease;
+
+  &:hover {
+    filter: brightness(1.08);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  .btn-icon {
+    width: 1.2em;
+    height: 1.2em;
+    flex-shrink: 0;
+  }
+}
+
+.help-card .pill-btn {
+  margin-top: clamp(0.4rem, 1.2dvh, 0.8rem);
+  width: 100%;
+}
+
+/* AÇÕES OPERACIONAIS: três botões fixos */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.4rem, 1.2dvh, 0.7rem);
+  flex: 1;
+  justify-content: center;
+
+  .pill-btn {
+    width: 100%;
+  }
+}
+
+/* HISTÓRICO: único card que rola */
+.table-wrapper {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: clamp(0.8rem, 2.1dvh, 1rem);
+
+  th,
+  td {
+    text-align: left;
+    padding: clamp(0.3rem, 1dvh, 0.6rem) 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  th {
+    position: sticky;
+    top: 0;
+    background: var(--card);
+    font-weight: 700;
+  }
+}
+
+/* RODAPÉ */
+.footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: clamp(0.7rem, 1.7dvh, 0.85rem);
+}
+
+/* RETRATO: empilha as colunas e permite rolagem */
+@media (orientation: portrait) {
+  :host {
+    height: auto;
+    min-height: 100dvh;
+    overflow: auto;
+  }
+
+  .app-shell {
+    height: auto;
+    min-height: 100dvh;
+    grid-template-rows: auto auto auto;
+  }
+
+  .content {
+    grid-template-columns: 1fr;
+  }
+
+  .column-left,
+  .column-right {
+    grid-template-rows: auto;
+  }
+
+  .row-two {
+    grid-template-columns: 1fr;
+  }
+
+  .table-wrapper {
+    max-height: 50dvh;
+  }
+}
+
+.pill-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  filter: grayscale(0.4);
+
+  &:hover {
+    filter: grayscale(0.4);
+  }
+
+  &:active {
+    transform: none;
+  }
+}
+
+.action-feedback {
+  margin: 0.4rem 0 0;
+  font-size: clamp(0.8rem, 2dvh, 0.95rem);
+  color: var(--stopped);
+  text-align: center;
+}

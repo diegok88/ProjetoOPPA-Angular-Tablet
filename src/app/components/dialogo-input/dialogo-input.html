@@ -1,0 +1,56 @@
+<section class="modal-backdrop" (click)="fecharModal()"></section>
+
+<section class="modal-card">
+  <header class="modal-header">
+    <app-icones-svg class="modal-image" [nome]="data.icone" />
+  </header>
+
+  <main class="modal-main">
+    <h2>{{ data.titulo }}</h2>
+
+    @if (data.usuario) {
+      <span class="modal-usuario">{{ data.usuario }}</span>
+    }
+    @if (data.mensagem) {
+      <span class="modal-mensagem">{{ data.mensagem }}</span>
+    }
+
+    <label class="campo">
+      <span class="campo-label">{{ data.label }} :</span>
+      <input
+        class="campo-input"
+        type="text"
+        inputmode="text"
+        autocomplete="off"
+        [placeholder]="data.placeholder ?? ''"
+        [maxLength]="data.maxLength ?? null"
+        [value]="valor()"
+        (input)="definir($event)"
+        cdkFocusInitial
+      />
+    </label>
+  </main>
+
+  <footer class="modal-footer">
+    <button
+      type="button"
+      class="modal-btn btn-secondary"
+      (click)="fecharModal()"
+      [disabled]="carregando()"
+    >
+      Cancelar
+    </button>
+    <button
+      type="button"
+      class="modal-btn btn-primary"
+      (click)="onConfirmar()"
+      [disabled]="!valido() || carregando()"
+    >
+      @if (carregando()) {
+        <span class="spinner"></span> Enviando...
+      } @else {
+        {{ data.textoConfirmar ?? 'Confirmar' }}
+      }
+    </button>
+  </footer>
+</section>

@@ -1,0 +1,123 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+}
+
+.modal-card {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #03396c;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid rgba(228, 228, 228, 0.9);
+  box-shadow: 2px 2px 2px 2px rgba(228, 228, 228, 0.2);
+  z-index: 1001;
+  min-width: min(400px, 92vw);
+  max-width: 92%;
+  color: #e0e8e6;
+
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.modal-image {
+  width: 64px;
+  height: 64px;
+  color: #2196f3;
+}
+
+/* Cores semânticas por tipo de resultado (mesma paleta dos estados do dashboard) */
+.icone-sucesso {
+  color: #22c55e;
+}
+
+.icone-erro {
+  color: #ef4444;
+}
+
+.icone-cancelar,
+.icone-alerta {
+  color: #eab308;
+}
+
+.modal-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.modal-main h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.modal-usuario {
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.modal-mensagem {
+  font-size: 1rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.4;
+}
+
+.modal-erros {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-top: 8px;
+  color: #ff5c5c;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+}
+
+.modal-btn {
+  width: 100%;
+  max-width: 120px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: #1e88e5;
+  color: #e0e8e6;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+.modal-btn:hover {
+  background: #5accff;
+}
+
+.modal-btn:active {
+  transform: scale(0.98);
+}

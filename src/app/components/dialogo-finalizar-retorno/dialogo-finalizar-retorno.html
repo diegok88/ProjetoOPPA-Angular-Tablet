@@ -1,0 +1,31 @@
+<!-- Sobreposição do fundo -->
+<section class="modal-backdrop"></section>
+
+<!-- Card do modal -->
+<section class="modal-card">
+  <header class="modal-header">
+    <app-icones-svg [class]="'modal-image icone-' + data.icone" [nome]="data.icone" />
+  </header>
+
+  <main class="modal-main">
+    <h2>{{ data.titulo }}</h2>
+
+    @if (data.operacao || data.dados) {
+      <span class="modal-usuario">{{ data.operacao }} {{ data.dados }}</span>
+    }
+
+    <span class="modal-mensagem">{{ data.mensagem }}</span>
+
+    @if (data.erros?.length) {
+      <div class="modal-erros" role="alert">
+        @for (item of data.erros; track item) {
+          <span>{{ item }}</span>
+        }
+      </div>
+    }
+  </main>
+
+  <footer class="modal-footer">
+    <button type="button" class="modal-btn" (click)="fechar()">OK</button>
+  </footer>
+</section>

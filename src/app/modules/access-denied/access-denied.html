@@ -1,0 +1,55 @@
+<div class="access-shell">
+  <!-- HEADER (mesmo padrão do login e do dashboard) -->
+  <header class="header">
+    <div class="brand">
+      <img class="logo" src="images/logoOPPA-1.png" alt="logo" />
+    </div>
+
+    <h1 class="company">S.A. Textil Ltda</h1>
+
+    <button class="back-btn" type="button" (click)="voltarLogin()">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <polyline points="15 18 9 12 15 6" />
+      </svg>
+      Voltar ao login
+    </button>
+  </header>
+
+  <!-- CONTEÚDO -->
+  <main class="main">
+    <section class="card-denied">
+      <div class="icon-wrap" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect x="4" y="11" width="16" height="10" rx="2" />
+          <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+          <line x1="12" y1="15" x2="12" y2="18" />
+        </svg>
+      </div>
+
+      <h2 class="title">Acesso Negado</h2>
+      <p class="message">Usuário não autorizado, verifique com seu gestor!</p>
+
+      <button class="btn-primary" type="button" (click)="voltarLogin()">Voltar ao login</button>
+    </section>
+  </main>
+
+  <!-- RODAPÉ -->
+  <footer class="footer">
+    <p class="texto-footer">Desenvolvido por DDK · OPPA System. Todos os direitos reservados.</p>
+  </footer>
+</div>

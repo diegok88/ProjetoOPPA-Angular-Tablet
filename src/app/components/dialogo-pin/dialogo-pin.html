@@ -1,0 +1,82 @@
+<!-- Sobreposição do fundo -->
+<section class="modal-backdrop" (click)="fecharModal('cancelado')"></section>
+
+<!-- Card do modal -->
+<section class="modal-card">
+  <header class="modal-header">
+    <app-icones-svg class="modal-image" [nome]="data.icone" />
+  </header>
+
+  <main class="modal-main">
+    <h2>{{ data.titulo }}</h2>
+
+    @if (data.usuario) {
+      <span class="modal-usuario">{{ data.usuario }}</span>
+    }
+
+    <span class="modal-mensagem">{{ data.mensagem }}</span>
+
+    <!-- Casas do PIN -->
+    <div class="pin-display" aria-label="PIN digitado">
+      @for (indice of posicoes(); track indice) {
+        <span class="pin-casa" [class.preenchida]="indice < digitos().length">
+          @if (indice < digitos().length) {
+            <span class="pin-dot"></span>
+          }
+        </span>
+      }
+    </div>
+  </main>
+
+  <!-- Teclado numérico (terminais touch) -->
+  <div class="pin-teclado" role="group" aria-label="Teclado numérico">
+    @for (tecla of teclas; track tecla) {
+      <button type="button" class="tecla" (click)="onDigito(tecla)" [disabled]="carregando()">
+        {{ tecla }}
+      </button>
+    }
+    <button
+      type="button"
+      class="tecla tecla-acao"
+      (click)="onLimpar()"
+      [disabled]="carregando()"
+      aria-label="Limpar"
+    >
+      C
+    </button>
+    <button type="button" class="tecla" (click)="onDigito('0')" [disabled]="carregando()">0</button>
+    <button
+      type="button"
+      class="tecla tecla-acao"
+      (click)="onApagar()"
+      [disabled]="carregando()"
+      aria-label="Apagar último dígito"
+    >
+      <app-icones-svg nome="apagar" />
+    </button>
+  </div>
+
+  <!-- Rodapé com botões: o Cancelar fecha e o dashboard exibe o cancelamento -->
+  <footer class="modal-footer">
+    <button
+      type="button"
+      class="modal-btn btn-secondary"
+      (click)="fecharModal('cancelado')"
+      [disabled]="carregando()"
+    >
+      Cancelar
+    </button>
+    <button
+      type="button"
+      class="modal-btn btn-primary"
+      (click)="onConfirmar()"
+      [disabled]="!pinCompleto() || carregando()"
+    >
+      @if (carregando()) {
+        <span class="spinner"></span> Validando...
+      } @else {
+        Confirmar
+      }
+    </button>
+  </footer>
+</section>
