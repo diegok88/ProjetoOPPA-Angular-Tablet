@@ -11,7 +11,7 @@
     <h2>{{ data.titulo }}</h2>
 
     @if (data.operacao || data.dados) {
-      <span class="modal-usuario">{{ data.operacao }} {{ data.dados }}</span>
+      <span class="modal-usuario">{{ data.dados }}</span>
     }
 
     <span class="modal-mensagem">{{ data.mensagem }}</span>
@@ -26,6 +26,6 @@
   </main>
 
   <footer class="modal-footer">
-    <button type="button" class="modal-btn" (click)="fechar()">OK</button>
+    <button type="button" class="modal-btn" (click)="fechar()">{{ data.operacao }}</button>
   </footer>
 </section>

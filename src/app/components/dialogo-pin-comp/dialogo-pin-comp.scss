@@ -1,0 +1,395 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+}
+
+.modal-card {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #03396c;
+  padding: 20px 20px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(228, 228, 228, 0.9);
+  box-shadow: 2px 2px 2px 2px rgba(228, 228, 228, 0.2);
+  z-index: 1001;
+  min-width: min(400px, 92vw);
+  max-width: 92%;
+
+  /* Trava no viewport: nunca gera barra de rolagem externa */
+  max-height: calc(100dvh - 16px);
+  overflow: hidden;
+
+  color: #e0e8e6;
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.modal-image {
+  width: clamp(38px, 6.5dvh, 48px);
+  height: clamp(38px, 6.5dvh, 48px);
+  color: #2196f3;
+}
+
+.modal-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+
+  /* Permite encolher; se ainda faltar espaço, rola SEM mostrar barra */
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+}
+
+.modal-main::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+.modal-main h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.25;
+}
+
+.modal-usuario {
+  font-size: 0.98rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.modal-mensagem {
+  font-size: 0.92rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.35;
+}
+
+/* ── Campos ─────────────────────────────────────────────────────── */
+.campos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  width: 100%;
+  text-align: center;
+}
+
+.campo-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: rgba(255, 255, 255, 0.75);
+  transition: color 0.15s ease;
+}
+
+.campo.ativo .campo-label {
+  color: #5accff;
+}
+
+.campo-input {
+  width: 100%;
+  height: clamp(40px, 5.4dvh, 48px);
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-white);
+  font-size: 1.15rem;
+  font-family: 'Roboto Mono', 'Roboto', monospace;
+  letter-spacing: 0.16em;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.15s ease;
+}
+
+/* Centraliza os dígitos no meio do campo */
+.campo-centralizado {
+  text-align: center;
+  text-indent: 0.16em; /* compensa o letter-spacing */
+}
+
+.campo.ativo .campo-input {
+  border-color: #2196f3;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.campo-input:focus {
+  outline: none;
+  border-color: #2196f3;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.campo-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.campo-input[aria-invalid='true'] {
+  border-color: #ff5c5c;
+}
+
+.campo-senha {
+  position: relative;
+  width: 100%;
+}
+
+.campo-senha .campo-input {
+  padding-left: 44px;
+  padding-right: 44px;
+}
+
+.btn-olho {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.65);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.btn-olho:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--color-white);
+}
+
+.btn-olho:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Teclado numérico (compacto) ─────────────────────────────────── */
+.teclado {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: clamp(36px, 5.2dvh, 46px);
+  gap: 6px;
+  width: 100%;
+  margin-top: 8px;
+  flex-shrink: 0;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tecla {
+  height: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-white);
+  font-family: 'Roboto Mono', 'Roboto', monospace;
+  font-size: clamp(1.05rem, 2.6dvh, 1.25rem);
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color 0.12s ease,
+    transform 0.08s ease;
+}
+
+.tecla:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.tecla:active:not(:disabled) {
+  transform: scale(0.96);
+  background: rgba(33, 150, 243, 0.45);
+}
+
+.tecla:focus-visible {
+  outline: 2px solid #5accff;
+  outline-offset: 2px;
+}
+
+.tecla:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.tecla-funcao {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* ── Erros ──────────────────────────────────────────────────────── */
+.pin-erros {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-top: 6px;
+  color: #ff5c5c;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* ── Rodapé ─────────────────────────────────────────────────────── */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 4px;
+  flex-shrink: 0;
+}
+
+.modal-btn {
+  width: 100%;
+  max-width: 112px;
+  padding: 9px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: #2196f3;
+  color: #e0e8e6;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+.btn-secondary {
+  background: none;
+  border: 1px solid #6c757d;
+  color: #e0e8e6;
+}
+
+.btn-secondary:hover {
+  background: #6c757d;
+}
+
+.btn-primary {
+  background: #1e88e5;
+  color: #e0e8e6;
+}
+
+.btn-primary:hover {
+  background: #5accff;
+}
+
+.modal-btn:active {
+  transform: scale(0.98);
+}
+
+.modal-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Animações ──────────────────────────────────────────────────── */
+.campos.shake {
+  animation: tremer 0.4s ease;
+}
+
+@keyframes tremer {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-8px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-6px);
+  }
+  80% {
+    transform: translateX(6px);
+  }
+}
+
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--color-white);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-right: 6px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Telas baixas (notebook pequeno / celular deitado) ───────────── */
+@media (max-height: 620px) {
+  .modal-card {
+    gap: 10px;
+    padding: 14px 16px 12px;
+  }
+
+  .modal-image {
+    width: 32px;
+    height: 32px;
+  }
+
+  .modal-mensagem {
+    font-size: 0.85rem;
+  }
+
+  .campos {
+    gap: 8px;
+    margin-top: 6px;
+  }
+
+  .campo-input {
+    height: 38px;
+    font-size: 1.05rem;
+  }
+
+  .teclado {
+    grid-auto-rows: 34px;
+    gap: 5px;
+    margin-top: 6px;
+  }
+
+  .tecla {
+    font-size: 1rem;
+  }
+}

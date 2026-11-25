@@ -10,7 +10,9 @@ export const RequestHttp = {
   controle_jornada: `${environment.apiUrl}/controle-jornada`,
   ocorrencia: `${environment.apiUrl}/ocorrencia`,
   falhas: `${environment.apiUrl}/falhas`,
+  solucoes: `${environment.apiUrl}/solucoes`,
   fluxo_ocorrencia: `${environment.apiUrl}/fluxo-ocorrencia`,
+  solicitacoes: `${environment.apiUrl}/solicitacoes`,
 };
 
 /*

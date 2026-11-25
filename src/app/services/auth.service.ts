@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { finalize, Observable, of, tap } from 'rxjs';
 import { RequestHttp } from '../constants/requests.const';
-import { LoginModel } from '../entities/login.model';
+import { AutenticarModel, LoginModel } from '../entities/login.model';
 import { AuthResponse } from '../interfaces/auth-response.interface';
 import { TOKEN_KEY } from '../constants/auth-token.interceptor';
 import { UserGuard } from '../interfaces/user-guard.interface';
@@ -18,7 +18,7 @@ export class AuthService {
   public usuario = this.perfilSignal.asReadonly();
   public role = computed(() => this.perfilSignal()?.desPerfil ?? null);
 
-  private autenticadoSignal = signal<boolean>(false);
+  private autenticadoSignal = signal<AutenticarModel | null>(null);
   public autenticado = this.autenticadoSignal.asReadonly();
 
   login(credencial: LoginModel): Observable<AuthResponse> {
@@ -36,9 +36,17 @@ export class AuthService {
       .pipe(finalize(() => this.limparSessao()));
   }
 
-  autenticarAcao(payload: { usuarioId: string; pin: string }): Observable<boolean> {
-    return this.http.post<boolean>(`${this.apiUrl}/autenticar`, payload).pipe(
+  autenticarAcao(payload: {
+    cracha: number;
+    pin: string;
+    empresaId: string;
+  }): Observable<AutenticarModel> {
+    console.log(
+      `[AUTH]: usuarioId: ${payload.cracha} | pin :${payload.pin} | empresaId :${payload.empresaId}`,
+    );
+    return this.http.post<AutenticarModel>(`${this.apiUrl}/autenticar`, payload).pipe(
       tap((resultado) => {
+        console.log(`[AUTH]: cracha: ${resultado.cracha} | perfil :${resultado.perfil}`);
         this.autenticadoSignal.set(resultado);
       }),
     );
@@ -74,6 +82,7 @@ export class AuthService {
 
   private limparSessao(): void {
     this.perfilSignal.set(null);
+    this.autenticadoSignal.set(null);
     localStorage.removeItem(TOKEN_KEY);
   }
 }

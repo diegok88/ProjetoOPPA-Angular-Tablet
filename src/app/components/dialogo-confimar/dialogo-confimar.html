@@ -1,39 +1,3 @@
-<!-- Sobreposição do fundo 
-<section class="modal-backdrop" (click)="fecharModal('cancelado')"></section>
-
-<section class="modal-card">
-  <div class="modal-container">
-
-    <header class="modal-header">
-      <img class=".modal-image" [src]="data.icone" alt="adicionar" />
-    </header>
-
-    <main class="modal-main">
-      <h2>{{ data.titulo }} {{ data.entidade | uppercase }}</h2>
-      <span>{{ data.mensagem }} {{ data.entidade }} {{ data.dados }}?</span>
-    </main>
-  </div>
-
-  <footer class="modal-footer">
-    <button
-      class="modal-btn btn-secondary"
-      (click)="fecharModal('cancelado')"
-      [disabled]="carregando()"
-    >
-      Cancelar
-    </button>
-    <button class="modal-btn btn-primary" (click)="onConfirmar()" [disabled]="carregando()">
-      @if (carregando()) {
-        <span class="spinner"></span> Processando...
-      } @else {
-        Confirmar
-      }
-    </button>
-  </footer>
-</section>
--->
-
-<!-- Sobreposição do fundo -->
 <section class="modal-backdrop" (click)="fecharModal()"></section>
 
 <!-- Card do modal -->
@@ -45,21 +9,31 @@
 
   <!-- Corpo -->
   <main class="modal-main">
-    <h2>{{ data.titulo }} {{ data.entidade | uppercase }}</h2>
-    <span class="modal-mensagem"> {{ data.mensagem }} {{ data.entidade }} {{ data.dados }}? </span>
+    <h2>{{ data.titulo }}</h2>
+    <span class="modal-mensagem"> {{ data.mensagem }} </span>
+    <span class="modal-mensagem"> {{ data.dados }} </span>
   </main>
 
   <!-- Rodapé com botões -->
   <footer class="modal-footer">
-    <button class="modal-btn btn-secondary" (click)="fecharModal()" [disabled]="carregando()">
-      Cancelar
-    </button>
-    <button class="modal-btn btn-primary" (click)="onConfirmar()" [disabled]="carregando()">
-      @if (carregando()) {
-        <span class="spinner"></span> Processando...
-      } @else {
-        Confirmar
-      }
-    </button>
+    @if (data.botaoNegacao) {
+      <button class="modal-btn btn-secondary" (click)="fecharModal()" [disabled]="carregando()">
+        {{ data.botaoNegacao }}
+      </button>
+    }
+    @if (data.botaoNeutro) {
+      <button class="modal-btn btn-third" (click)="onNeutro()" [disabled]="carregando()">
+        {{ data.botaoNeutro }}
+      </button>
+    }
+    @if (data.botaoConfirmacao) {
+      <button class="modal-btn btn-primary" (click)="onConfirmar()" [disabled]="carregando()">
+        @if (carregando()) {
+          <span class="spinner"></span> Processando...
+        } @else {
+          {{ data.botaoConfirmacao }}
+        }
+      </button>
+    }
   </footer>
 </section>

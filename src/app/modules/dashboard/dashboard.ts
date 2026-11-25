@@ -2,24 +2,22 @@ import {
   Component,
   computed,
   DestroyRef,
-  effect,
   ElementRef,
   HostListener,
-  Inject,
   inject,
   OnInit,
-  resource,
   signal,
+  viewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { StateDistribution } from '../../services/dashboard.service';
 import { Charts } from '../../components/charts/charts';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { AlocacaoOperacionalService } from '../../services/alocacao-operacional.service';
 import { GeradorTurnoService } from '../../services/gerador-turno.service';
-import { concatMap, EMPTY, Observable, of, tap } from 'rxjs';
-import { EstadoAtivoService } from '../../services/estado-ativo.service';
+import { concatMap, distinctUntilChanged, filter, map, Observable, of } from 'rxjs';
+
 import { NgClass } from '@angular/common';
 import { ControleJornadaService } from '../../services/controle-jornada.service';
 import {
@@ -30,47 +28,30 @@ import {
   TipoJornadaType,
 } from '../../entities/controle-jornada.model';
 import { formataDataLocal } from '../../util/formatar-data.util';
-import { DialogPinService } from '../../services/dialog-pin.service';
-import {
-  PIN_CADASTRO_FALHA,
-  PIN_INICIAR_FLUXO,
-  PIN_JORNADA,
-} from '../../entities/dialogo-pin.model';
 import { DialogFinalizarService } from '../../services/dialog-finalizar.service';
 import {
-  FINALIZAR_CANCELADO_RETORNO,
   FINALIZAR_CANCELAR,
   FINALIZAR_ERRO,
-  FINALIZAR_ERRO_RETORNO,
-  FINALIZAR_INICIAR_RETORNO,
   FINALIZAR_SUCESSO,
-  FINALIZAR_SUCESSO_RETORNO,
-  ResultadoFinalizar,
 } from '../../entities/dialogo-finalizar.model';
 import {
   CondicaoOcorrencia,
-  OcorrenciaForm,
-  OcorrenciaModel,
   OcorrenciaQuery,
-} from '../../entities/ocorrencia.model';
-import { OcorrenciaService } from '../../services/ocorrencia.service';
-import { DialogInputService } from '../../services/dialog-input.service';
-import { INPUT_CODIGO_FALHA } from '../../entities/dialogo-input.model';
-import { DialogConfirmarService } from '../../services/dialog-confirmar.service';
-import { FalhasModel, FalhasQuery } from '../../entities/falhas.model';
-import { FalhasService } from '../../services/falhas.service';
-import { extrairMensagens } from '../../util/error-api.util';
+} from '../../components/fluxo-ocorrencia/anexos/ocorrencia.model';
+import { FalhasQuery } from '../../components/fluxo-ocorrencia/anexos/falhas.model';
+import { FluxoOcorrenciaQuery } from '../../components/fluxo-ocorrencia/anexos/fluxo-ocorrencia.model';
+import { FluxoOcorrencia } from '../../components/fluxo-ocorrencia/fluxo-ocorrencia';
+import { DialogPinService } from '../../components/dialogo-pin/anexos/dialog-pin.service';
+import { PIN_JORNADA } from '../../components/dialogo-pin/anexos/dialogo-pin.model';
+import { FluxoSolicitacao } from '../../components/fluxo-solicitacoes/fluxo-solicitacoes';
 import {
-  CONFIRMAR_CADASTRAR,
-  CONFIRMAR_INICIAR_FLUXO,
-} from '../../entities/dialogo-confirmar.model';
-import { DialogFinalizarRetornoService } from '../../services/dialog-finalizar-retorno.service';
-import {
-  FluxoOcorrenciaForm,
-  FluxoOcorrenciaModel,
-  FluxoOcorrenciaQuery,
-} from '../../entities/fluxo-ocorrencia.model';
-import { FluxoOcorrenciaService } from '../../services/fluxo-ocorrencia.service';
+  AvisoSolicitacao,
+  SolicitacaoService,
+  TipoAvisoSolicitacao,
+} from '../../components/fluxo-solicitacoes/anexos/solicitacoes.service';
+import { OcorrenciaService } from '../../components/fluxo-ocorrencia/anexos/ocorrencia.service';
+import { FluxoOcorrenciaService } from '../../components/fluxo-ocorrencia/anexos/fluxo-ocorrencia.service';
+import { EstadoAtivoService } from '../../services/estado-ativo.service';
 
 export interface HeaderMenuItem {
   label: string;
@@ -81,18 +62,6 @@ export interface OperationalAction {
   label: string;
   icon: string;
   disabled?: boolean;
-}
-
-/** Contexto imutável do fluxo de falha, circula entre todas as etapas. */
-interface ContextoFalha {
-  ocorrencia: OcorrenciaModel;
-  ocorrenciaId: string;
-}
-
-/** Contexto após a resolução do código: adiciona os dados da falha. */
-interface ContextoFalhaResolvida extends ContextoFalha {
-  codigo: string;
-  falha: FalhasModel;
 }
 
 const QUERY = {
@@ -124,70 +93,92 @@ const QUERY = {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [Charts, NgClass],
+  imports: [Charts, NgClass, FluxoOcorrencia, FluxoSolicitacao],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
 export class Dashboard implements OnInit {
   private destroyRef = inject(DestroyRef);
-
   private readonly dialogPin = inject(DialogPinService);
-  private readonly confirmarService = inject(DialogConfirmarService);
   private readonly finalizarService = inject(DialogFinalizarService);
-  private readonly finalizarRetornoService = inject(DialogFinalizarRetornoService);
-  private readonly inputService = inject(DialogInputService);
-
   private readonly authService = inject(AuthService);
   private readonly alocacaoService = inject(AlocacaoOperacionalService);
   private readonly geradorTurnoService = inject(GeradorTurnoService);
   private readonly estadoAtivoService = inject(EstadoAtivoService);
+  private readonly solicitacoesService = inject(SolicitacaoService);
   private readonly jornadaService = inject(ControleJornadaService);
   private readonly ocorrenciaService = inject(OcorrenciaService);
-  private readonly falhaService = inject(FalhasService);
   private readonly fluxoOcorrenciaService = inject(FluxoOcorrenciaService);
   private readonly router = inject(Router);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
-  /** Menu aberto pelo botão hambúrguer do cabeçalho */
   readonly menuOpen = signal(false);
-  protected readonly usuario = this.authService.usuario;
+
+  protected readonly terminal = this.authService.usuario;
   protected readonly alocacao = this.alocacaoService.buscarAlocacaoOperacional;
   protected readonly ocorrencia = this.ocorrenciaService.buscarOcorrencia;
   protected readonly turnoAtual = this.geradorTurnoService.buscarTurnoAtual;
   protected readonly ultimoRegistro = this.jornadaService.buscarControleJornada;
   protected readonly fluxoOcorrencia = this.fluxoOcorrenciaService.buscarFluxoOcorrencia;
+
   protected readonly registrando = signal(false);
   protected readonly fluxoFalhaAtivoCadastrar = signal(false);
   protected readonly fluxoFalhaAtivoExecutar = signal(false);
   protected readonly fluxoFalhaErro = signal(false);
   protected readonly feedback = signal<string | null>(null);
 
-  // Fonte em tempo real do estado da máquina
-  private readonly identification = this.estadoAtivoService.identificationState;
   protected readonly currentState = this.estadoAtivoService.currentState;
   protected readonly stateSince = this.estadoAtivoService.stateSince;
   protected readonly formattedDuration = this.estadoAtivoService.formattedDuration;
   protected readonly tipoEstadoAtual = this.estadoAtivoService.tipoEstadoAtual;
 
-  /** Próximo registro do ciclo, derivado do último cadastro do usuário */
+  /* ==================== SNACKBAR ==================== */
+
+  /** Texto exibido no snack — null fecha. */
+  protected readonly snackbarTexto = signal<string | null>(null);
+
+  /** Tipo do snack aberto — evita reabrir com o mesmo conteúdo. */
+  private snackbarTipo: TipoAvisoSolicitacao | null = null;
+
+  /** Origem do lote aberto (só importa em NOVA). */
+  private snackbarOrigemSupervisor = false;
+
+  constructor() {
+    toObservable(this.solicitacoesService.avisoSolicitacao)
+      .pipe(
+        filter((aviso): aviso is AvisoSolicitacao => !!aviso),
+        takeUntilDestroyed(),
+      )
+      .subscribe((aviso) => this.tratarAviso(aviso));
+
+    /** Declara a tag ao socket assim que ela existir. */
+    toObservable(this.alocacao)
+      .pipe(
+        map((a) => a?.tagAtivoId ?? this.tagDoTerminal()),
+        filter((tag): tag is string => !!tag),
+        distinctUntilChanged(),
+        takeUntilDestroyed(),
+      )
+      .subscribe((tag) => this.solicitacoesService.entrarNaTag(tag));
+  }
+
   protected readonly proximoTipo = computed<TipoJornadaType>(() =>
     proximoTipoJornada(this.ultimoRegistro()),
   );
 
-  /** Ações operacionais: botão de jornada dinâmico + Solicitar Encarregado */
   protected readonly actions = computed<OperationalAction[]>(() => {
     const jornada = BOTAO_JORNADA[this.proximoTipo()] ?? BOTAO_JORNADA.ENTRADA_EXPEDIENTE;
+
     return [
       {
         label: jornada.label,
         icon: jornada.icon,
-        disabled: this.registrando() || !this.usuario()?.tagAtivoId,
+        disabled: this.registrando() || !this.terminal()?.tagAtivoId,
       },
-      { label: 'Solicitar Encarregado', icon: 'supervisor' },
+      { label: 'Solicitar Supervisor', icon: 'supervisor' },
     ];
   });
 
-  /** Classe do TEXTO do estado (bate com .state-text no SCSS) */
   stateClass(tipoEstado: string): string {
     switch (tipoEstado) {
       case 'PRODUZINDO':
@@ -200,19 +191,19 @@ export class Dashboard implements OnInit {
         return '';
     }
   }
-  /* Inicio retorno do grafico-----------------------------------------------------------------------------------------------------------------------------------------------------*/
+
   protected readonly distribuicaoEstados = computed<StateDistribution[]>(() => {
     const c = this.estadoAtivoService.contadorEstados();
     const total = c?.total ?? 0;
     const pct = (n: number) => (total > 0 ? Math.round((n / total) * 100) : 0);
+
     return [
       { label: 'Produzindo', color: '#22c55e', percent: pct(c?.produzindo ?? 0) },
       { label: 'Parado', color: '#eab308', percent: pct(c?.parado ?? 0) },
       { label: 'Falha', color: '#ef4444', percent: pct(c?.falha ?? 0) },
     ];
   });
-  /* Fim retorno do grafico-----------------------------------------------------------------------------------------------------------------------------------------------------*/
-  /** Classe do CARD (borda/realce por estado, bate com .card-produzindo etc.) */
+
   cardClass(tipoEstado: string): string {
     switch (tipoEstado) {
       case 'PRODUZINDO':
@@ -243,9 +234,13 @@ export class Dashboard implements OnInit {
       case 'Área Restrita':
         this.router.navigate(['/login']);
         break;
+
       case 'Histórico Solicitações':
-        this.router.navigate(['/login']);
+        this.router.navigate(['/historico-solicitacoes'], {
+          queryParams: { tagAtivoId: this.meuTagAtivoId() },
+        });
         break;
+
       case 'Sair':
         this.sair();
         break;
@@ -253,21 +248,25 @@ export class Dashboard implements OnInit {
   }
 
   protected onAction(label: string): void {
-    if (label === 'Solicitar Encarregado') {
+    if (label === 'Solicitar Supervisor') {
       this.solicitarEncarregado();
       return;
     }
-
     this.registrarJornada();
   }
 
-  /* Inicio cadastro de jornada-----------------------------------------------------------------------------------------------------------------------------------------------------*/
+  /* Inicio cadastro de jornada ------------------------------------------------------------ */
+
   protected registrarJornada(): void {
     const alocacao = this.alocacao();
     const tipo = this.proximoTipo();
-    if (!alocacao?.operadorId || !alocacao.tagAtivoId || this.registrando() || !tipo) return;
 
-    const operadorId = alocacao.operadorId;
+    if (!alocacao?.operadorId || !alocacao.tagAtivoId || this.registrando() || !tipo) {
+      return;
+    }
+
+    const cracha = alocacao.operador?.cracha!;
+    const empresa = this.terminal()?.empresaId!;
     const tagAtivoId = alocacao.tagAtivoId;
     const operadorNome = alocacao.operador?.nome;
     const jornada = BOTAO_JORNADA[tipo] ?? BOTAO_JORNADA.ENTRADA_EXPEDIENTE;
@@ -280,7 +279,8 @@ export class Dashboard implements OnInit {
       .abrir({
         ...PIN_JORNADA,
         usuario: operadorNome,
-        acao: (pin) => this.authService.autenticarAcao({ usuarioId: operadorId, pin }),
+        acao: (pin) =>
+          this.authService.autenticarAcao({ cracha: cracha, pin: pin, empresaId: empresa }),
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((resultado) => {
@@ -293,6 +293,7 @@ export class Dashboard implements OnInit {
           });
           return;
         }
+
         if (resultado === 'erro') {
           this.encerrarRegistro();
           this.finalizarService.finalizar({
@@ -305,7 +306,7 @@ export class Dashboard implements OnInit {
         }
 
         this.cadastrarJornada({
-          usuarioId: operadorId,
+          usuarioId: alocacao.operadorId!,
           tagAtivoId,
           tipo,
           operacao: jornada.message,
@@ -366,375 +367,25 @@ export class Dashboard implements OnInit {
   private sincronizarUltimoRegistro(): Observable<ControleJornadaModel | null> {
     const usuario = this.alocacao()?.operadorId ?? undefined;
     const data = formataDataLocal(new Date());
+
     if (!usuario) return of(null);
+
     const query = QUERY.CARREGAR_JORNADA(usuario, data);
     return this.jornadaService.buscarUltimoRegistro(query);
   }
-  /* Fim cadastro de jornada-----------------------------------------------------------------------------------------------------------------------------------------------------*/
-  /* Inicio cadastro de ocorrência-----------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-  protected abrirModal() {
-    if (this.tipoEstadoAtual() !== 'FALHA') return;
-    const estado = this.identification();
+  /* Fim cadastro de jornada --------------------------------------------------------------- */
 
-    const queryO = QUERY.CARREGAR_OCORRENCIA(estado);
-    this.carregarOcorrencia(queryO)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        concatMap(() => this.carregarFluxoOcorrencia()),
-      )
-      .subscribe({
-        next: () => {
-          const ocorrencia = this.ocorrencia();
-          const fluxo = this.fluxoOcorrencia();
-          if (ocorrencia && !ocorrencia.falhaId) {
-            this.solicitarCodigo({ ocorrencia: ocorrencia, ocorrenciaId: ocorrencia.id });
-          } else if (fluxo) {
-            console.log(fluxo);
-            this.confirmarInicioFluxo(fluxo);
-          }
-        },
-        error: (erro) => this.finalizarErro(erro, 'Falha ao carregar ocorrência'),
-      });
-  }
-  /** GATILHO: estado FALHA → localiza a ocorrência em EXECUCAO e abre a etapa 1. */
-  private readonly alertaFalha = effect(() => {
-    if (this.tipoEstadoAtual() !== 'FALHA') return;
+  private readonly falhaFluxo = viewChild.required<FluxoOcorrencia>('falhaFluxo');
 
-    const tag = this.usuario()?.nome!;
-    const estado = this.identification();
-    if (!estado) {
-      this.encerrarFluxoFalhaCadastrar();
-      return;
-    }
-
-    const queryO = QUERY.CARREGAR_OCORRENCIA(estado);
-    this.carregarOcorrencia(queryO)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        concatMap(() => this.carregarFluxoOcorrencia()),
-      )
-
-      .subscribe({
-        next: () => {
-          const ocorrencia = this.ocorrencia();
-          const fluxo = this.fluxoOcorrencia();
-          if (ocorrencia && !ocorrencia.falhaId) {
-            this.solicitarCodigo({ ocorrencia: ocorrencia, ocorrenciaId: ocorrencia.id });
-          } else if (fluxo) {
-            console.log(fluxo);
-            this.confirmarInicioFluxo(fluxo);
-          }
-        },
-        error: (erro) => this.finalizarErro(erro, 'Cadastrar Falha', tag),
-      });
-  });
-
-  /** Etapa 1: input do código. Sem acao, o fechamento devolve a string digitada. */
-  private solicitarCodigo(ctx: ContextoFalha): void {
-    this.iniciarFluxoFalhaCadastar();
-    this.inputService
-      .abrir({ ...INPUT_CODIGO_FALHA })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((resultado) => {
-        const codigo =
-          typeof resultado === 'string' && resultado !== 'cancelado' ? resultado.trim() : null;
-
-        if (codigo) {
-          this.resolverFalha(codigo, ctx);
-        } else {
-          this.encerrarFluxoFalhaCadastrar();
-        }
-      });
+  protected abrirModal(): void {
+    this.falhaFluxo().disparar({ tipo: 'ABRIR' });
   }
 
-  /** Etapa 2: busca a falha pelo código no banco. Sem match, volta ao input. */
-  private resolverFalha(codigo: string, ctx: ContextoFalha): void {
-    const query = QUERY.CARREGAR_FALHA(codigo);
-
-    this.carregarFalha(query)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (resposta) => {
-          const falha = Array.isArray(resposta) ? resposta[0] : resposta;
-          this.confirmarFalha({ ...ctx, codigo, falha });
-        },
-        error: (erro) => {
-          this.finalizarErro(erro, 'Cadastrar Falha', codigo)
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe(() => {
-              this.solicitarCodigo(ctx);
-            });
-        },
-      });
-  }
-
-  /** Etapa 3: confirmação exibindo a falha descrita. Ação no-op: a gravação acontece após o PIN. */
-  private confirmarFalha(ctxResolvida: ContextoFalhaResolvida): void {
-    const dados = this.descreverFalha(ctxResolvida.codigo, ctxResolvida.falha);
-    this.confirmarService
-      .confirmar({
-        ...CONFIRMAR_CADASTRAR,
-        titulo: 'Registrar Falha',
-        entidade: 'falha',
-        dados: dados,
-        acao: () => of(true),
-      })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((resultado) => {
-        if (resultado === 'finalizado') {
-          this.solicitarPin(ctxResolvida);
-        } else {
-          this.finalizarCancelado('Cadastrar Falha', dados)
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe(() => {
-              this.solicitarCodigo(ctxResolvida);
-            });
-        }
-      });
-  }
-
-  /** Etapa 4: PIN. A acao valida o PIN contra o backend. */
-  private solicitarPin(ctxResolvida: ContextoFalhaResolvida): void {
-    const alocacao = this.alocacao();
-    if (!alocacao?.operadorId || this.registrando()) return;
-
-    const operadorId = alocacao.operadorId;
-    const operadorNome = alocacao.operador?.nome;
-
-    this.dialogPin
-      .abrir({
-        ...PIN_CADASTRO_FALHA,
-        usuario: operadorNome,
-        acao: (pin) => this.authService.autenticarAcao({ usuarioId: operadorId, pin }),
-      })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((resultado) => {
-        if (resultado === 'finalizado') {
-          this.registrarFalha(ctxResolvida);
-        } else {
-          this.solicitarCodigo(ctxResolvida);
-        }
-      });
-  }
-
-  /** Etapa 5: grava o id da falha na ocorrência e finaliza. */
-  private registrarFalha(ctxResolvida: ContextoFalhaResolvida): void {
-    const atualizar: OcorrenciaForm = { falhaId: ctxResolvida.falha.id };
-    const ocorrenciaId = ctxResolvida.ocorrenciaId;
-    const dados = `${ctxResolvida.falha.codigo} - ${ctxResolvida.falha.descricao}`;
-
-    this.ocorrenciaService
-      .atualizar(ocorrenciaId, atualizar)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.finalizarSucesso('Cadastrar Falha', dados)
-            .pipe(
-              takeUntilDestroyed(this.destroyRef),
-              concatMap(() => this.carregarFluxoOcorrencia()),
-            )
-            .subscribe(() => {
-              const fluxo = this.fluxoOcorrencia();
-              if (fluxo) {
-                this.confirmarInicioFluxo(fluxo);
-              }
-            });
-        },
-        error: (erro: unknown) => {
-          this.finalizarErro(erro, 'Cadastrar Falha', dados)
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe(() => {
-              this.solicitarCodigo(ctxResolvida);
-            });
-        },
-      });
-  }
-
-  /** Etapa 6: confirmação exibindo a verificação do ativo. Ação no-op: a gravação acontece após o PIN. */
-  private confirmarInicioFluxo(fluxo: FluxoOcorrenciaModel): void {
-    const perfil = fluxo.transferidoPerfil?.descricao;
-    if (perfil === 'OPERADOR') {
-      this.confirmarService
-        .confirmar({
-          ...CONFIRMAR_INICIAR_FLUXO,
-          entidade: 'ativo,',
-          dados: perfil,
-          acao: () => of(true),
-        })
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe((resultado) => {
-          const usuario = this.alocacao();
-          if (resultado === 'finalizado' && usuario?.operadorId) {
-            this.solicitarPinVerificar(usuario.operadorId, fluxo);
-          } else {
-            this.finalizarCancelado('Início da verificação', perfil)
-              .pipe(takeUntilDestroyed(this.destroyRef))
-              .subscribe(() => {
-                error: () => {};
-              });
-          }
-        });
-    }
-  }
-
-  /** Etapa 7: PIN. A acao valida o PIN contra o backend. */
-  private solicitarPinVerificar(usuarioId: string, fluxo: FluxoOcorrenciaModel): void {
-    const alocacao = this.alocacao();
-    if (!alocacao?.operadorId || this.registrando()) return;
-
-    const operadorId = alocacao.operadorId;
-    const operadorNome = alocacao.operador?.nome;
-
-    this.dialogPin
-      .abrir({
-        ...PIN_INICIAR_FLUXO,
-        usuario: operadorNome,
-        acao: (pin) => this.authService.autenticarAcao({ usuarioId: operadorId, pin }),
-      })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((resultado) => {
-        if (resultado === 'finalizado') {
-          this.registrarFluxoOcorrencia(usuarioId, fluxo);
-        } else {
-          this.confirmarInicioFluxo(fluxo);
-        }
-      });
-  }
-
-  /** Etapa 8: Registro do usuario no fluxo da ocorrencia. */
-  private registrarFluxoOcorrencia(usuarioId: string, fluxo: FluxoOcorrenciaModel) {
-    const fluxoId = fluxo.id;
-    const atualizar: FluxoOcorrenciaForm = { usuarioId: usuarioId };
-    const perfil = fluxo.transferidoPerfil?.descricao;
-
-    this.fluxoOcorrenciaService
-      .atualizar(fluxoId, atualizar)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.finalizarSucesso('Cadastro da Verificação', perfil!)
-            .pipe(
-              takeUntilDestroyed(this.destroyRef),
-              concatMap(() => this.carregarFluxoOcorrencia()),
-            )
-            .subscribe(() => {
-              const fluxo = this.fluxoOcorrencia();
-              if (fluxo) {
-                this.confirmarBloqueioFluxo(fluxo);
-              }
-            });
-        },
-        error: (erro: unknown) => {
-          this.finalizarErro(erro, 'Cadastrar da Verificação', perfil!)
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe(() => {
-              this.confirmarInicioFluxo(fluxo);
-            });
-        },
-      });
-  }
-
-  /** Etapa 8: Modal de bloqueio. */
-  private confirmarBloqueioFluxo(fluxo: FluxoOcorrenciaModel): void {
-    const perfil = fluxo.transferidoPerfil?.descricao;
-    if (perfil === 'OPERADOR') {
-      this.confirmarService
-        .confirmar({
-          ...CONFIRMAR_INICIAR_FLUXO,
-          entidade: 'ativo,',
-          dados: perfil,
-          acao: () => of(true),
-        })
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe((resultado) => {
-          const usuario = this.alocacao();
-          if (resultado === 'finalizado' && usuario?.operadorId) {
-            this.solicitarPinVerificar(usuario.operadorId, fluxo);
-          } else {
-            this.finalizarCancelado('Início da verificação', perfil)
-              .pipe(takeUntilDestroyed(this.destroyRef))
-              .subscribe(() => {
-                error: () => {};
-              });
-          }
-        });
-    }
-  }
-
-  /** Monta o texto "código + descrição" exibido na confirmação e na finalização. */
-  private descreverFalha(codigo: string, falha: FalhasModel): string {
-    const descricao = (falha as any).descricao ?? (falha as any).nome ?? '';
-    return descricao ? `código ${codigo}: ${descricao}` : `código ${codigo}`;
-  }
-
-  protected modalIniciarFluxo(operacao: string, dados: string): Observable<ResultadoFinalizar> {
-    return this.finalizarRetornoService.finalizar({
-      ...FINALIZAR_INICIAR_RETORNO,
-      operacao,
-      dados,
-      acao: () => of(true),
-    });
-  }
-
-  protected finalizarSucesso(operacao: string, dados: string): Observable<ResultadoFinalizar> {
-    return this.finalizarRetornoService.finalizar({
-      ...FINALIZAR_SUCESSO_RETORNO,
-      operacao,
-      dados,
-      acao: () => of(true),
-    });
-  }
-
-  private finalizarCancelado(operacao: string, dados: string): Observable<ResultadoFinalizar> {
-    return this.finalizarRetornoService.finalizar({
-      ...FINALIZAR_CANCELADO_RETORNO,
-      operacao,
-      dados,
-      acao: () => of(true),
-    });
-  }
-
-  protected finalizarErro(
-    erro: unknown,
-    operacao: string,
-    dados?: string,
-  ): Observable<ResultadoFinalizar> {
-    return this.finalizarRetornoService.finalizar({
-      ...FINALIZAR_ERRO_RETORNO,
-      operacao,
-      dados,
-      erros: extrairMensagens(erro, 'Não foi possível confirmar a operação.'),
-      acao: () => of(true),
-    });
-  }
-
-  private iniciarFluxoFalhaCadastar(): void {
-    this.fluxoFalhaAtivoCadastrar.set(true);
-  }
-  private encerrarFluxoFalhaCadastrar(): void {
-    this.fluxoFalhaAtivoCadastrar.set(false);
-  }
-
-  private carregarOcorrencia(query: OcorrenciaQuery) {
-    return this.ocorrenciaService.buscar(query);
-  }
-
-  private carregarFalha(query: FalhasQuery) {
-    return this.falhaService.buscar(query);
-  }
-
-  private carregarFluxoOcorrencia() {
-    const ocorrencia = this.ocorrencia();
-    if (!ocorrencia) return EMPTY;
-    const data = formataDataLocal(new Date());
-    const query = QUERY.CARREGAR_FLUXO(ocorrencia.id, data);
-    return this.fluxoOcorrenciaService.buscar(query);
-  }
-  /* Fim cadastro de ocorrência-----------------------------------------------------------------------------------------------------------------------------------------------------*/
+  private readonly encarregadoFluxo = viewChild.required<FluxoSolicitacao>('encarregadoFluxo');
 
   protected solicitarEncarregado(): void {
-    console.log('Solicitação do encarregado enviada');
+    this.encarregadoFluxo().disparar({ tipo: 'ABRIR' });
   }
 
   onSupport(): void {
@@ -743,6 +394,7 @@ export class Dashboard implements OnInit {
 
   private sair(): void {
     this.estadoAtivoService.desconectar();
+    this.solicitacoesService.desconectar();
     this.authService.logout().subscribe({
       next: () => this.irParaLogin(),
       error: () => this.irParaLogin(),
@@ -769,6 +421,7 @@ export class Dashboard implements OnInit {
 
   ngOnInit(): void {
     this.estadoAtivoService.conectar();
+    this.solicitacoesService.conectar();
     this.carregarPerfil();
   }
 
@@ -791,9 +444,11 @@ export class Dashboard implements OnInit {
   }
 
   private carregarAlocacao() {
-    const usuario = this.usuario()?.tagAtivoId;
+    const usuario = this.terminal()?.tagAtivoId;
     const turno = this.turnoAtual()?.turno!;
+
     if (!usuario) return of(null);
+
     const query = QUERY.CARREGAR_ALOCACAO(usuario, turno);
     return this.alocacaoService.buscarAlocacao(query);
   }
@@ -806,13 +461,119 @@ export class Dashboard implements OnInit {
       duracao: this.formatarDuracao(e.duracao ?? 0),
     })),
   );
-  /* Formata o tempo no card  do estado da máquina */
+
   protected formatarDuracao(segundos: number): string {
     const h = Math.floor(segundos / 3600);
     const m = Math.floor((segundos % 3600) / 60);
     const s = segundos % 60;
     const mm = m.toString().padStart(2, '0');
     const ss = s.toString().padStart(2, '0');
+
     return h > 0 ? `${h.toString().padStart(2, '0')}:${mm}:${ss}` : `${mm}:${ss}`;
+  }
+
+  /* ==================== SNACKBAR — AUXILIARES ==================== */
+
+  private tagDoTerminal(): string | null {
+    const doTerminal = (this.terminal() as { tagAtivoId?: string } | null | undefined)?.tagAtivoId;
+
+    return doTerminal ?? null;
+  }
+
+  private meuTagAtivoId(): string | null {
+    return this.alocacao()?.tagAtivoId ?? this.tagDoTerminal();
+  }
+
+  private meuUsuarioId(): string | null {
+    const operadorId = this.alocacao()?.operadorId;
+    if (operadorId) return operadorId;
+
+    const terminal = this.terminal() as Record<string, unknown> | null | undefined;
+    for (const chave of ['usuarioId', 'id', 'operadorId']) {
+      const valor = terminal?.[chave];
+      if (typeof valor === 'string' && valor) return valor;
+    }
+
+    return null;
+  }
+
+  private tagDoAviso(aviso: AvisoSolicitacao): string | null {
+    const bruto = (aviso as AvisoSolicitacao & { tagAtivoId?: string | null }).tagAtivoId;
+
+    return typeof bruto === 'string' && bruto ? bruto : null;
+  }
+
+  /** Texto do snack conforme o tipo do aviso. */
+  private montarMensagem(aviso: AvisoSolicitacao): string {
+    const quantidade = (aviso as AvisoSolicitacao & { quantidade?: number }).quantidade ?? 1;
+
+    if (aviso.tipo === 'NOVA') {
+      const doSupervisor =
+        (aviso as AvisoSolicitacao & { origemSupervisor?: boolean }).origemSupervisor === true;
+
+      if (doSupervisor) {
+        return quantidade > 1
+          ? `O supervisor enviou ${quantidade} novas solicitações.`
+          : 'O supervisor enviou uma nova solicitação.';
+      }
+
+      return quantidade > 1
+        ? `Você recebeu ${quantidade} novas solicitações.`
+        : 'Você recebeu uma nova solicitação.';
+    }
+
+    if (aviso.tipo === 'RESPOSTA') {
+      return 'O supervisor respondeu sua solicitação.';
+    }
+
+    return 'O supervisor enviou uma nova mensagem.';
+  }
+
+  /**
+   * Regras de silêncio:
+   *   NOVA              -> ignora se EU abri (solicitanteId === meuId);
+   *   RESPOSTA/MENSAGEM -> ignora se EU respondi (solicitadoId === meuId).
+   */
+  private tratarAviso(aviso: AvisoSolicitacao): void {
+    const minhaTag = this.meuTagAtivoId();
+    const tagDoEvento = this.tagDoAviso(aviso);
+
+    if (minhaTag && tagDoEvento && tagDoEvento !== minhaTag) return;
+
+    const meuId = this.meuUsuarioId();
+
+    if (aviso.tipo === 'NOVA') {
+      if (meuId && aviso.solicitanteId === meuId) return;
+    } else if (meuId && aviso.solicitadoId === meuId) {
+      return;
+    }
+
+    this.exibirSnackbar(aviso);
+  }
+
+  /**
+   * UM snack por vez, sem tempo de exibição.
+   *
+   * Se já existe um aberto do MESMO tipo, o novo aviso é IGNORADO — era
+   * exatamente isso que fazia o card parecer abrir três vezes: cada evento
+   * reescrevia o texto e forçava o re-render.
+   * Tipo diferente substitui o conteúdo. Fecha apenas no clique do X.
+   */
+  private exibirSnackbar(aviso: AvisoSolicitacao): void {
+    const aberto = this.snackbarTexto() !== null;
+
+    if (aberto && this.snackbarTipo === aviso.tipo) return;
+
+    this.snackbarTipo = aviso.tipo;
+    this.snackbarOrigemSupervisor =
+      (aviso as AvisoSolicitacao & { origemSupervisor?: boolean }).origemSupervisor === true;
+
+    this.snackbarTexto.set(this.montarMensagem(aviso));
+  }
+
+  protected fecharSnackbar(): void {
+    this.snackbarTexto.set(null);
+    this.snackbarTipo = null;
+    this.snackbarOrigemSupervisor = false;
   }
 }

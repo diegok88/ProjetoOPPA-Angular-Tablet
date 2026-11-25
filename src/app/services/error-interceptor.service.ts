@@ -7,42 +7,21 @@ import {
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
+import { logErroApi, normalizarErro } from '../util/error-api.util';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ErrorInterceptorService implements HttpInterceptor {
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+  intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     return next.handle(req).pipe(
-      catchError((error: HttpErrorResponse) => {
-        let mensagens: string[] = ['Erro inesperado.'];
+      catchError((origem: unknown) => {
+        const erro = normalizarErro(origem, 'Erro inesperado na requisição.');
 
-        if (error.error) {
-          if (typeof error.error === 'object' && error.error.message) {
-            const msg = error.error.message;
-            mensagens = Array.isArray(msg) ? msg : [String(msg)];
-          } else if (typeof error.error === 'string') {
-            mensagens = [error.error];
-          } else if (
-            Array.isArray(error.error) &&
-            error.error.every((i) => typeof i === 'string')
-          ) {
-            mensagens = error.error;
-          } else if (typeof error.error === 'object') {
-            const possible = error.error.error || error.error.msg || error.error.message;
-            mensagens = possible
-              ? Array.isArray(possible)
-                ? possible
-                : [String(possible)]
-              : [JSON.stringify(error.error)];
-          }
-        } else if (error.message) {
-          mensagens = [error.message];
-        }
+        logErroApi(`${req.method} ${req.urlWithParams}`, erro);
 
-        console.error('Erro capturado:', mensagens);
-
-        return throwError(() => mensagens);
+        // Sobe ainda como string[] (compatível), mas com status e corpo anexados.
+        return throwError(() => erro);
       }),
     );
   }

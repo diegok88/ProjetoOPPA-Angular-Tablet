@@ -1,0 +1,266 @@
+/* =========================================================================
+ * BASE DO MODAL
+ * ======================================================================= */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+}
+
+.modal-card {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #03396c;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid rgba(228, 228, 228, 0.9);
+  box-shadow: 2px 2px 2px 2px rgba(228, 228, 228, 0.2);
+  z-index: 1001;
+  min-width: min(400px, 92vw);
+  max-width: 92%;
+  color: #e0e8e6;
+
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: start;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.modal-image {
+  width: 64px;
+  height: 64px;
+  color: #2196f3;
+}
+
+.modal-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.modal-usuario {
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.modal-mensagem {
+  font-size: 1rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.4;
+}
+
+/* =========================================================================
+ * CAMPO (LABEL + SELECT)
+ * ======================================================================= */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  margin-top: 6px;
+  text-align: center;
+}
+
+.campo-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.campo-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 12px;
+  color: #e0e8e6;
+  font-family: 'Roboto Mono', 'Roboto', monospace;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-align: center;
+  outline: none;
+  caret-color: #2196f3;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.campo-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+  font-weight: 400;
+  letter-spacing: normal;
+}
+
+.campo-input::selection {
+  background: rgba(33, 150, 243, 0.4);
+}
+
+.campo-input:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.campo-input:focus {
+  border-color: #2196f3;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.25);
+}
+
+.campo-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.campo-input.invalido {
+  border-color: #ff5c5c;
+  box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.18);
+}
+
+/* =========================================================================
+ * SELECT DE SOLUÇÃO
+ * ======================================================================= */
+.campo-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: 'Inter', 'Roboto', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: normal;
+  padding: 12px 44px 12px 16px;
+  background-color: transparent;
+  background-image: linear-gradient(45deg, transparent 50%, rgba(255, 255, 255, 0.6) 50%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.6) 50%, transparent 50%);
+  background-position:
+    calc(100% - 22px) calc(50% - 2px),
+    calc(100% - 16px) calc(50% - 2px);
+  background-size:
+    6px 6px,
+    6px 6px;
+  background-repeat: no-repeat;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.campo-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.campo-select option {
+  background: #03396c;
+  color: #e0e8e6;
+  letter-spacing: normal;
+  text-align: left;
+}
+
+.campo-select option:disabled {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.campo + .campo {
+  margin-top: 4px;
+}
+
+/* Aviso quando não há soluções cadastradas */
+.modal-erros {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #ff5c5c;
+  text-align: center;
+  line-height: 1.35;
+}
+
+/* =========================================================================
+ * RODAPÉ
+ * ======================================================================= */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.modal-btn {
+  width: 100%;
+  max-width: 120px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: #2196f3;
+  color: #e0e8e6;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+.btn-secondary {
+  background: none;
+  border: 1px solid #6c757d;
+  color: #e0e8e6;
+}
+
+.btn-secondary:hover {
+  background: #6c757d;
+}
+
+.btn-primary {
+  background: #1e88e5;
+  color: #e0e8e6;
+}
+
+.btn-primary:hover {
+  background: #5accff;
+}
+
+.modal-btn:active {
+  transform: scale(0.98);
+}
+
+.modal-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================================================================
+ * SPINNER
+ * ======================================================================= */
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--color-white, #e0e8e6);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

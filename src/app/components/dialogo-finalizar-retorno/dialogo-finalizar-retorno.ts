@@ -6,7 +6,7 @@ import {
   ResultadoFinalizar,
 } from '../../entities/dialogo-finalizar.model';
 import { IconesSvg } from '../icones-svg/icones-svg';
-import { DialogFinalizarRetornoService } from '../../services/dialog-finalizar-retorno.service';
+import { DialogFinalizarRetornoService } from './anexos/dialog-finalizar-retorno.service';
 
 @Component({
   selector: 'app-dialogo-finalizar-retorno',

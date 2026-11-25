@@ -18,7 +18,7 @@ export class GeradorTurnoService {
   buscarTurno(): Observable<GeradorTurnoModel> {
     return this.http.get<GeradorTurnoModel>(`${this.apiUrl}/atual`).pipe(
       tap((dado) => {
-        console.log(dado);
+        //console.log(dado);
         this.buscarTurnoSignal.set(dado);
       }),
       catchError((error) => throwError(() => error)),

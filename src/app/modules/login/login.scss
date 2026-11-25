@@ -1,19 +1,24 @@
 :host {
   --bg: #03396c;
-  --card: #011f4b;
-  --border: rgba(255, 255, 255, 0.18);
+  --border: rgba(255, 255, 255, 0.16);
   --border-input: rgba(255, 255, 255, 0.35);
+  --border-btn: rgba(255, 255, 255, 0.55);
   --text: #e0e8e6;
   --muted: rgba(255, 255, 255, 0.7);
   --placeholder: rgba(255, 255, 255, 0.45);
   --primary: #2196f3;
-  --primary-hover: #1e88e5;
   --icon: #5fb0ff;
   --negative: #ff8a80;
   --negative-border: #f44336;
 
-  --gap: clamp(0.5rem, 1.6dvh, 1rem);
-  --field-h: clamp(44px, 6.5dvh, 52px);
+  --gap: clamp(0.4rem, 1.2dvh, 0.75rem);
+  --field-h: clamp(40px, 5.3dvh, 46px);
+  --btn-h: clamp(42px, 5.8dvh, 48px);
+  --pill: 999px;
+
+  /* ALTURAS RESERVADAS — eliminam qualquer deslocamento no layout */
+  --erro-h: clamp(0.85rem, 1.9dvh, 1rem);
+  --feedback-h: clamp(1.5rem, 3.4dvh, 2rem);
 
   display: block;
   height: 100dvh;
@@ -37,81 +42,66 @@
   gap: var(--gap);
 }
 
-/* HEADER */
+/* HEADER — integrado ao fundo, sem barra divisória */
 .header {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  padding-bottom: var(--gap);
-  border-bottom: 1px solid var(--border);
 
   .brand {
     justify-self: start;
   }
 
   .logo {
-    font-size: clamp(1.1rem, 3dvh, 1.6rem);
-    font-weight: 700;
-    letter-spacing: 2px;
+    height: clamp(20px, 3.2dvh, 28px);
+    width: auto;
+    display: block;
   }
 
   .company {
     margin: 0;
-    font-size: clamp(1rem, 2.6dvh, 1.4rem);
+    font-size: clamp(0.95rem, 2.4dvh, 1.25rem);
     font-weight: 500;
     text-align: center;
     white-space: nowrap;
   }
 }
 
-/* CONTEÚDO */
+/* CONTEÚDO — sem card, empilhado e centralizado */
 .main {
   min-height: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* CARD DE LOGIN */
-.card-login {
-  width: min(460px, 92vw);
-  max-height: 100%;
-  box-sizing: border-box;
-  padding: clamp(1rem, 3dvh, 2rem) clamp(1rem, 3vw, 2rem);
-  display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(0.75rem, 2.5dvh, 1.5rem);
-
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  justify-content: center;
+  gap: clamp(0.85rem, 2.8dvh, 1.5rem);
 }
 
+/* LOGO CENTRAL */
 .card-logo {
   display: flex;
   justify-content: center;
   width: 100%;
 
   .logo-img {
-    width: clamp(120px, 20dvh, 180px);
-    max-width: 70%;
+    width: clamp(105px, 15.5dvh, 150px);
+    max-width: 62%;
     height: auto;
   }
 }
 
+/* FORMULÁRIO — sem fundo, sem borda, sem sombra */
 .login-form {
-  width: 100%;
+  width: min(400px, 92vw);
   display: flex;
   flex-direction: column;
-  gap: clamp(0.5rem, 1.5dvh, 1rem);
+  gap: clamp(0.55rem, 1.7dvh, 0.85rem);
 }
 
 .form-title {
   margin: 0;
-  font-size: clamp(1.1rem, 3dvh, 1.4rem);
-  font-weight: 600;
+  font-size: clamp(0.98rem, 2.5dvh, 1.2rem);
+  font-weight: 500;
   text-align: center;
   color: var(--text);
 }
@@ -119,15 +109,15 @@
 .fields {
   display: flex;
   flex-direction: column;
-  gap: clamp(0.6rem, 1.6dvh, 0.9rem);
+  gap: clamp(0.3rem, 0.9dvh, 0.55rem);
   width: 100%;
 }
 
-/* CAMPOS */
+/* CAMPO — altura total fixa mesmo com erro visível */
 .field {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.25rem;
   width: 100%;
 
   &.has-error .field-control {
@@ -136,7 +126,9 @@
 }
 
 .field-label {
-  font-size: clamp(0.8rem, 2dvh, 0.9rem);
+  padding-left: 1.1rem;
+  font-size: clamp(0.75rem, 1.8dvh, 0.85rem);
+  line-height: 1.2;
   color: var(--muted);
 }
 
@@ -146,24 +138,24 @@
   gap: 0.6rem;
   width: 100%;
   height: var(--field-h);
-  padding: 0 0.85rem;
+  padding: 0 1.1rem;
   box-sizing: border-box;
   background: transparent;
   border: 1px solid var(--border-input);
-  border-radius: 10px;
+  border-radius: var(--pill);
   transition:
     border-color 0.15s ease,
     box-shadow 0.15s ease;
 
   &:focus-within {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.25);
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.22);
   }
 }
 
 .field-icon {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.1rem;
+  height: 1.1rem;
   flex-shrink: 0;
   color: var(--icon);
 }
@@ -177,7 +169,7 @@ input {
   background: transparent;
   color: var(--text);
   font-family: inherit;
-  font-size: clamp(0.95rem, 2.4dvh, 1.05rem);
+  font-size: clamp(0.9rem, 2.2dvh, 1rem);
 
   &::placeholder {
     color: var(--placeholder);
@@ -187,18 +179,18 @@ input {
 .toggle-btn {
   display: grid;
   place-items: center;
-  width: 2rem;
-  height: 2rem;
+  width: 1.75rem;
+  height: 1.75rem;
   padding: 0;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--pill);
   background: transparent;
   color: var(--icon);
   cursor: pointer;
 
   svg {
-    width: 1.25rem;
-    height: 1.25rem;
+    width: 1.1rem;
+    height: 1.1rem;
   }
 
   &:hover {
@@ -206,35 +198,56 @@ input {
   }
 }
 
+/* SLOT DO ERRO — sempre ocupa o mesmo espaço, com ou sem texto */
+.field-erro {
+  display: flex;
+  align-items: center;
+  min-height: var(--erro-h);
+  padding-left: 1.1rem;
+  overflow: hidden;
+}
+
 .erro-campo {
   color: var(--negative);
-  font-size: clamp(0.75rem, 1.8dvh, 0.85rem);
+  font-size: clamp(0.7rem, 1.7dvh, 0.8rem);
+  line-height: 1.2;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+/* SLOT DO ALERTA GLOBAL — altura fixa, não empurra o botão */
+.form-feedback {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: var(--feedback-h);
 }
 
 .mensagem-erro {
   width: 100%;
   margin: 0;
-  padding: clamp(0.5rem, 1.5dvh, 0.75rem) 1rem;
+  padding: 0.35rem 1rem;
   box-sizing: border-box;
-  font-size: clamp(0.85rem, 2dvh, 0.95rem);
+  font-size: clamp(0.78rem, 1.9dvh, 0.88rem);
+  line-height: 1.2;
   text-align: center;
   color: var(--negative);
   background-color: rgba(244, 67, 54, 0.12);
   border: 1px solid var(--negative-border);
-  border-radius: 12px;
+  border-radius: var(--pill);
 }
 
-/* BOTÃO ENTRAR */
+/* BOTÃO ENTRAR — pill com borda branca */
 .btn-enter {
   width: 100%;
-  height: clamp(48px, 7dvh, 56px);
-  margin-top: clamp(0.25rem, 1dvh, 0.5rem);
-  border: none;
-  border-radius: 999px;
+  height: var(--btn-h);
+  border: 1px solid var(--border-btn);
+  border-radius: var(--pill);
   background: linear-gradient(180deg, #5fb0ff 0%, #2d86e6 100%);
   color: #fff;
   font-family: inherit;
-  font-size: clamp(0.95rem, 2.4dvh, 1.05rem);
+  font-size: clamp(0.9rem, 2.2dvh, 1rem);
   font-weight: 600;
   letter-spacing: 0.3px;
   cursor: pointer;
@@ -261,17 +274,17 @@ input {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   color: var(--muted);
 
   .icon-brand {
-    width: clamp(18px, 3dvh, 24px);
+    width: clamp(16px, 2.6dvh, 21px);
     height: auto;
   }
 
   .texto-footer {
     margin: 0;
-    font-size: clamp(0.7rem, 1.7dvh, 0.85rem);
+    font-size: clamp(0.65rem, 1.6dvh, 0.8rem);
   }
 }
 

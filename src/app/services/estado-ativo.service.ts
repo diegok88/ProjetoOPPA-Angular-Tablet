@@ -6,6 +6,12 @@ import { ErrorMessageService } from './error-massege.service';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../constants/environment.const';
 import { RespostaErro } from '../interfaces/respostaErro.interface';
+import { catchError, Observable, throwError, timeout } from 'rxjs';
+import {
+  FiltroHistorico,
+  PaginaHistorico,
+} from '../components/historico-solicitacoes/anexos/historico-solicitacoes.model';
+import { normalizarErro } from '../util/error-api.util';
 
 /** Formato enviado pelo back em 'estadoAtivoTrocado' */
 export interface EstadoTrocado {
@@ -64,10 +70,6 @@ export class EstadoAtivoService implements OnDestroy {
     this.iniciarRelogio();
   }
 
-  /**
-   * Abre a conexão uma vez. Várias telas podem chamar: se o socket já existir,
-   * apenas garante a conexão e, se preciso, pede a lista.
-   */
   conectar(opcoes: { lista?: boolean } = {}): void {
     if (opcoes.lista) {
       this.querLista = true;
@@ -159,7 +161,6 @@ export class EstadoAtivoService implements OnDestroy {
     });
   }
 
-  /** Chamar quando o token for renovado: troca a autenticação sem recriar as telas */
   reconectar(novoToken: string): void {
     if (!this.socket) return;
     this.socket.auth = { token: novoToken };
@@ -174,7 +175,6 @@ export class EstadoAtivoService implements OnDestroy {
     this.conectadoSignal.set(false);
   }
 
-  /** Dispositivo registra uma mudança de estado */
   inserirEstado(tipoEstado: string): void {
     if (!this.socket?.connected) {
       this.notification.showError('Não conectado ao servidor.');
@@ -190,7 +190,6 @@ export class EstadoAtivoService implements OnDestroy {
     });
   }
 
-  /** Estado aberto do ativo do terminal */
   buscarEstadoAtivoCliente(): void {
     if (!this.socket?.connected) return;
     this.socket.emit('buscarEstadoAtivoCliente', (estado: EstadoAtivoModel | null) => {
@@ -200,7 +199,6 @@ export class EstadoAtivoService implements OnDestroy {
     });
   }
 
-  /** Histórico do dia/turno sob demanda (carga inicial e reconexões) */
   buscarHistorico(): void {
     if (!this.socket?.connected) return;
     this.socket.emit('historicoEstadoAtivo', (lista: EstadoAtivoModel[] | null) => {
@@ -208,10 +206,6 @@ export class EstadoAtivoService implements OnDestroy {
     });
   }
 
-  /**
-   * Segundos decorridos. Usa o valor do servidor quando existir; antes do
-   * primeiro tick, calcula a partir de dataInicial.
-   */
   tempoDecorrido(estado: EstadoAtivoModel | null | undefined): number {
     if (!estado) return 0;
     if (!estado.status) return estado.duracao ?? 0;
@@ -259,31 +253,26 @@ export class EstadoAtivoService implements OnDestroy {
     this.desconectar();
   }
 
-  /** Id do estado atual em tempo real do ativo desta conexão */
   readonly identificationState = computed<string>(() => {
     const estado = this.estadoClienteSignal();
     return estado?.id ?? '';
   });
 
-  /** Estado atual em tempo real do ativo desta conexão */
   readonly currentState = computed<string>(() => {
     const estado = this.estadoClienteSignal();
     return estado?.tipoEstado ?? 'SEM ESTADO';
   });
 
-  /** Desde quando o estado atual está ativo (formatado) */
   readonly stateSince = computed<string>(() => {
     const estado = this.estadoClienteSignal();
     if (!estado) return '--';
     return new Date(estado.dataInicial).toLocaleString('pt-BR');
   });
 
-  /** Duração formatada, atualizada a cada tick/relogio */
   readonly formattedDuration = computed<string>(() => {
     return this.formatarTempo(this.tempoDecorrido(this.estadoClienteSignal()));
   });
 
-  /** Tipo do estado atual, para classes CSS */
   readonly tipoEstadoAtual = computed<string>(() => {
     return this.estadoClienteSignal()?.tipoEstado ?? '';
   });

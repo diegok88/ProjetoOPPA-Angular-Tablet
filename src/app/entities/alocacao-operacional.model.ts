@@ -5,9 +5,9 @@ export interface AlocacaoOperacionalModel {
   id?: string;
   codigo?: number;
   operadorId?: string | null;
-  operador?: { nome: string; cracha: string; turno: TurnoType } | null;
+  operador?: { nome: string; cracha: number; turno: TurnoType } | null;
   gestorId?: string | null;
-  gestor?: { nome: string; cracha: string } | null;
+  gestor?: { nome: string; cracha: number } | null;
   tagAtivoId: string;
   tagAtivo?: {
     id: string;

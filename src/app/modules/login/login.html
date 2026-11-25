@@ -5,56 +5,58 @@
       <img class="logo" src="images/logoOPPA-1.png" alt="logo" />
     </div>
 
-    <h1 class="company">S.A. Textil Ltda</h1>
+    <h1 class="company"></h1>
 
     <span class="header-spacer" aria-hidden="true"></span>
   </header>
 
-  <!-- CONTEÚDO -->
+  <!-- CONTEÚDO (sem container/card) -->
   <main class="main">
-    <section class="card-login">
-      <div class="card-logo">
-        <img class="logo-img" src="images/logoOPPA-2.png" alt="Logo OPPA" loading="eager" />
-      </div>
+    <div class="card-logo">
+      <img class="logo-img" src="images/logoOPPA-2.png" alt="Logo OPPA" loading="eager" />
+    </div>
 
-      <form class="login-form" (ngSubmit)="onSubmit($event)" novalidate>
-        <h2 class="form-title">Acesse sua conta do ativo</h2>
+    <form class="login-form" (ngSubmit)="onSubmit($event)" novalidate>
+      <h2 class="form-title">Acesse sua conta do ativo</h2>
 
-        <div class="fields">
-          <!-- CÓDIGO -->
-          <div class="field" [class.has-error]="codigoInvalido() || codigoVazio()">
-            <label class="field-label" for="codigo">Código</label>
-            <div class="field-control">
-              <svg
-                class="field-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <circle cx="12" cy="12" r="3" />
-                <path
-                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
-                />
-              </svg>
-              <input
-                id="codigo"
-                name="codigo"
-                type="text"
-                placeholder="Insira o seu código"
-                [ngModel]="loginModel().codigo"
-                (ngModelChange)="onInput('codigo', $event)"
-                (blur)="onBlur('codigo')"
-                inputmode="text"
-                autocapitalize="characters"
-                maxlength="5"
-                autocomplete="off"
-                [attr.aria-invalid]="codigoInvalido() || codigoVazio()"
+      <div class="fields">
+        <!-- CÓDIGO -->
+        <div class="field" [class.has-error]="codigoInvalido() || codigoVazio()">
+          <label class="field-label" for="codigo">Código</label>
+          <div class="field-control">
+            <svg
+              class="field-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
               />
-            </div>
+            </svg>
+            <input
+              id="codigo"
+              name="codigo"
+              type="text"
+              placeholder="Insira o seu código"
+              [ngModel]="loginModel().codigo"
+              (ngModelChange)="onInput('codigo', $event)"
+              (blur)="onBlur('codigo')"
+              inputmode="text"
+              autocapitalize="characters"
+              maxlength="5"
+              autocomplete="off"
+              [attr.aria-invalid]="codigoInvalido() || codigoVazio()"
+            />
+          </div>
+
+          <!-- Slot de erro com altura reservada -->
+          <div class="field-erro">
             @if (codigoInvalido()) {
               <span class="erro-campo">Apenas letras e números são permitidos</span>
             }
@@ -62,117 +64,125 @@
               <span class="erro-campo">O código é obrigatório</span>
             }
           </div>
+        </div>
 
-          <!-- SENHA -->
-          <div class="field" [class.has-error]="senhaVazia()">
-            <label class="field-label" for="senha">Senha</label>
-            <div class="field-control">
-              <svg
-                class="field-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <circle cx="8" cy="15" r="4" />
-                <path d="M11 12l9-9" />
-                <path d="M17 6l3 3" />
-                <path d="M14 9l2 2" />
-              </svg>
-              <input
-                id="senha"
-                name="senha"
-                [type]="hide() ? 'password' : 'text'"
-                placeholder="Insira a sua senha"
-                [ngModel]="loginModel().senha"
-                (ngModelChange)="onInput('senha', $event)"
-                (blur)="onBlur('senha')"
-                autocomplete="current-password"
-                [attr.aria-invalid]="senhaVazia()"
-              />
-              <button
-                class="toggle-btn"
-                type="button"
-                (click)="alternarSenha($event)"
-                [attr.aria-label]="hide() ? 'Mostrar senha' : 'Ocultar senha'"
-                [attr.aria-pressed]="!hide()"
-              >
-                @if (hide()) {
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"
-                    />
-                    <path
-                      d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"
-                    />
-                    <line x1="1" y1="1" x2="23" y2="23" />
-                  </svg>
-                } @else {
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
-                }
-              </button>
-            </div>
+        <!-- SENHA -->
+        <div class="field" [class.has-error]="senhaVazia()">
+          <label class="field-label" for="senha">Senha</label>
+          <div class="field-control">
+            <svg
+              class="field-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="8" cy="15" r="4" />
+              <path d="M11 12l9-9" />
+              <path d="M17 6l3 3" />
+              <path d="M14 9l2 2" />
+            </svg>
+            <input
+              id="senha"
+              name="senha"
+              [type]="hide() ? 'password' : 'text'"
+              placeholder="Insira a sua senha"
+              [ngModel]="loginModel().senha"
+              (ngModelChange)="onInput('senha', $event)"
+              (blur)="onBlur('senha')"
+              autocomplete="current-password"
+              [attr.aria-invalid]="senhaVazia()"
+            />
+            <button
+              class="toggle-btn"
+              type="button"
+              (click)="alternarSenha($event)"
+              [attr.aria-label]="hide() ? 'Mostrar senha' : 'Ocultar senha'"
+              [attr.aria-pressed]="!hide()"
+            >
+              @if (hide()) {
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"
+                  />
+                  <path
+                    d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"
+                  />
+                  <line x1="1" y1="1" x2="23" y2="23" />
+                </svg>
+              } @else {
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              }
+            </button>
+          </div>
+
+          <!-- Slot de erro com altura reservada -->
+          <div class="field-erro">
             @if (senhaVazia()) {
               <span class="erro-campo">A senha é obrigatória</span>
             }
           </div>
+        </div>
 
-          <!-- EMPRESA -->
-          <div class="field" [class.has-error]="empresaInvalida() || empresaVazia()">
-            <label class="field-label" for="codEmpresa">Empresa</label>
-            <div class="field-control">
-              <svg
-                class="field-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M2 21V10l5 3V10l5 3V10l5 3V5h3v16z" />
-                <line x1="2" y1="21" x2="22" y2="21" />
-                <line x1="6" y1="17" x2="6" y2="17.01" />
-                <line x1="10" y1="17" x2="10" y2="17.01" />
-                <line x1="14" y1="17" x2="14" y2="17.01" />
-              </svg>
-              <input
-                id="codEmpresa"
-                name="codEmpresa"
-                type="text"
-                placeholder="Insira o código da empresa"
-                [ngModel]="loginModel().codEmpresa"
-                (ngModelChange)="onInput('codEmpresa', $event)"
-                (blur)="onBlur('codEmpresa')"
-                inputmode="numeric"
-                maxlength="5"
-                autocomplete="off"
-                [attr.aria-invalid]="empresaInvalida() || empresaVazia()"
-              />
-            </div>
+        <!-- EMPRESA -->
+        <div class="field" [class.has-error]="empresaInvalida() || empresaVazia()">
+          <label class="field-label" for="codEmpresa">Empresa</label>
+          <div class="field-control">
+            <svg
+              class="field-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M2 21V10l5 3V10l5 3V10l5 3V5h3v16z" />
+              <line x1="2" y1="21" x2="22" y2="21" />
+              <line x1="6" y1="17" x2="6" y2="17.01" />
+              <line x1="10" y1="17" x2="10" y2="17.01" />
+              <line x1="14" y1="17" x2="14" y2="17.01" />
+            </svg>
+            <input
+              id="codEmpresa"
+              name="codEmpresa"
+              type="text"
+              placeholder="Insira o código da empresa"
+              [ngModel]="loginModel().codEmpresa"
+              (ngModelChange)="onInput('codEmpresa', $event)"
+              (blur)="onBlur('codEmpresa')"
+              inputmode="numeric"
+              maxlength="5"
+              autocomplete="off"
+              [attr.aria-invalid]="empresaInvalida() || empresaVazia()"
+            />
+          </div>
+
+          <!-- Slot de erro com altura reservada -->
+          <div class="field-erro">
             @if (empresaInvalida()) {
               <span class="erro-campo">Apenas números são permitidos</span>
             }
@@ -181,21 +191,24 @@
             }
           </div>
         </div>
+      </div>
 
+      <!-- Slot do alerta global com altura reservada -->
+      <div class="form-feedback">
         @if (mensagemErro()) {
           <p class="mensagem-erro" role="alert">{{ mensagemErro() }}</p>
         }
+      </div>
 
-        <button
-          class="btn-enter"
-          type="submit"
-          [disabled]="carregando()"
-          [attr.aria-busy]="carregando()"
-        >
-          {{ carregando() ? 'Entrando...' : 'Entrar' }}
-        </button>
-      </form>
-    </section>
+      <button
+        class="btn-enter"
+        type="submit"
+        [disabled]="carregando()"
+        [attr.aria-busy]="carregando()"
+      >
+        {{ carregando() ? 'Entrando...' : 'Entrar' }}
+      </button>
+    </form>
   </main>
 
   <!-- RODAPÉ -->

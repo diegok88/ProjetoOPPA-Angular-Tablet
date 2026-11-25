@@ -1,0 +1,85 @@
+<!-- dialogo-solucao/dialogo-solucao.html -->
+<section class="modal-backdrop" (click)="fecharModal()"></section>
+
+<section class="modal-card">
+  <header class="modal-header">
+    <app-icones-svg class="modal-image" [nome]="data.icone" />
+  </header>
+
+  <main class="modal-main">
+    <h2>{{ data.titulo }}</h2>
+
+    @if (data.usuario) {
+      <span class="modal-usuario">{{ data.usuario }}</span>
+    }
+    @if (data.mensagem) {
+      <span class="modal-mensagem">{{ data.mensagem }}</span>
+    }
+
+    <!-- SELECT 1: solução -->
+    <label class="campo">
+      <span class="campo-label">{{ data.label }} :</span>
+      <select
+        class="campo-input campo-select"
+        [disabled]="carregando() || !data.opcoes.length"
+        (change)="definir($event)"
+        cdkFocusInitial
+      >
+        <option value="" disabled [selected]="!selecionada()">
+          {{ data.placeholder ?? 'Selecione' }}
+        </option>
+        @for (opcao of data.opcoes; track opcao.id) {
+          <option [value]="opcao.id">{{ rotulo(opcao) }}</option>
+        }
+      </select>
+    </label>
+
+    <!-- SELECT 2: tipo de ocorrência (somente quando manutencao = true) -->
+    @if (exigeTipo()) {
+      <label class="campo">
+        <span class="campo-label">{{ labelTipo() }} :</span>
+        <select
+          class="campo-input campo-select"
+          [disabled]="carregando()"
+          (change)="definirTipo($event)"
+        >
+          <option value="" disabled [selected]="!tipoSelecionado()">
+            {{ placeholderTipo() }}
+          </option>
+          @for (tipo of tipos; track tipo.valor) {
+            <option [value]="tipo.valor" [selected]="tipoSelecionado() === tipo.valor">
+              {{ tipo.label }}
+            </option>
+          }
+        </select>
+      </label>
+    }
+
+    @if (!data.opcoes.length) {
+      <span class="modal-erros">Nenhuma solução cadastrada para esta falha e perfil.</span>
+    }
+  </main>
+
+  <footer class="modal-footer">
+    <button
+      type="button"
+      class="modal-btn btn-secondary"
+      (click)="fecharModal()"
+      [disabled]="carregando()"
+    >
+      Cancelar
+    </button>
+    <button
+      type="button"
+      class="modal-btn btn-primary"
+      (click)="onConfirmar()"
+      [disabled]="!valido() || carregando()"
+    >
+      @if (carregando()) {
+        <span class="spinner"></span> Enviando...
+      } @else {
+        {{ data.textoConfirmar ?? 'Registrar' }}
+      }
+    </button>
+  </footer>
+</section>

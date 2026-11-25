@@ -1,0 +1,150 @@
+<section class="modal-backdrop" (click)="fecharModal()"></section>
+
+<section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="pin-titulo">
+  <header class="modal-header">
+    <app-icones-svg class="modal-image" [nome]="data.icone" />
+  </header>
+
+  <form class="modal-main" (submit)="onConfirmar($event)" novalidate>
+    <h2 id="pin-titulo">{{ data.titulo }}</h2>
+
+    @if (data.usuario) {
+      <span class="modal-usuario">{{ data.usuario }}</span>
+    }
+
+    <span class="modal-mensagem">{{ data.mensagem }}</span>
+
+    <div class="campos" [class.shake]="shake()">
+      <!-- Crachá -->
+      <label class="campo" [class.ativo]="campoAtivo() === 'cracha'">
+        <span class="campo-label">{{ rotuloCracha() }}</span>
+        <input
+          #inputCracha
+          class="campo-input campo-centralizado"
+          type="text"
+          inputmode="numeric"
+          autocomplete="off"
+          spellcheck="false"
+          maxlength="20"
+          [value]="cracha() ?? ''"
+          (input)="onCracha($event)"
+          (focus)="focar('cracha')"
+          [disabled]="carregando()"
+          [attr.aria-invalid]="erros().length > 0"
+        />
+      </label>
+
+      <!-- Senha -->
+      <label class="campo" [class.ativo]="campoAtivo() === 'senha'">
+        <span class="campo-label">{{ rotuloSenha() }}</span>
+        <div class="campo-senha">
+          <input
+            #inputSenha
+            class="campo-input campo-centralizado"
+            [type]="mostrarSenha() ? 'text' : 'password'"
+            inputmode="numeric"
+            autocomplete="off"
+            spellcheck="false"
+            [attr.maxlength]="12"
+            [value]="senha()"
+            (input)="onSenha($event)"
+            (focus)="focar('senha')"
+            [disabled]="carregando()"
+            [attr.aria-invalid]="erros().length > 0"
+          />
+          <button
+            type="button"
+            class="btn-olho"
+            (click)="alternarSenha()"
+            [disabled]="carregando()"
+            [attr.aria-label]="mostrarSenha() ? 'Ocultar senha' : 'Mostrar senha'"
+            [attr.aria-pressed]="mostrarSenha()"
+          >
+            <app-icones-svg [nome]="mostrarSenha() ? 'olho-fechado' : 'olho'" />
+          </button>
+        </div>
+      </label>
+    </div>
+
+    <!-- Teclado numérico -->
+    <div
+      class="teclado"
+      role="group"
+      aria-label="Teclado numérico"
+      (pointerdown)="$event.preventDefault()"
+    >
+      @for (tecla of teclas; track tecla) {
+        <button
+          type="button"
+          class="tecla"
+          (click)="digitar(tecla)"
+          [disabled]="carregando()"
+          [attr.aria-label]="'Dígito ' + tecla"
+        >
+          {{ tecla }}
+        </button>
+      }
+
+      <button
+        type="button"
+        class="tecla tecla-funcao"
+        (click)="apagar()"
+        [disabled]="carregando()"
+        aria-label="Apagar último dígito"
+      >
+        ⌫
+      </button>
+
+      <button
+        type="button"
+        class="tecla"
+        (click)="digitar('0')"
+        [disabled]="carregando()"
+        aria-label="Dígito 0"
+      >
+        0
+      </button>
+
+      <button
+        type="button"
+        class="tecla tecla-funcao"
+        (click)="limparCampo()"
+        [disabled]="carregando()"
+        aria-label="Limpar o campo selecionado"
+      >
+        Limpar
+      </button>
+    </div>
+
+    @if (erros().length) {
+      <div class="pin-erros" role="alert" aria-live="assertive">
+        @for (erro of erros(); track erro) {
+          <span>{{ erro }}</span>
+        }
+      </div>
+    }
+  </form>
+
+  <footer class="modal-footer">
+    <button
+      type="button"
+      class="modal-btn btn-secondary"
+      (click)="fecharModal()"
+      [disabled]="carregando()"
+    >
+      Cancelar
+    </button>
+    <button
+      type="button"
+      class="modal-btn btn-primary"
+      (click)="onConfirmar()"
+      [disabled]="!formularioValido() || carregando()"
+    >
+      @if (carregando()) {
+        <span class="spinner"></span> Validando...
+      } @else {
+        Confirmar
+      }
+    </button>
+  </footer>
+</section>

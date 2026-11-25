@@ -1,0 +1,51 @@
+<!-- Sobreposição do fundo -->
+<section class="modal-backdrop"></section>
+
+<!-- Card do modal -->
+<section class="modal-card">
+  <header class="modal-header">
+    <app-icones-svg [class]="'modal-image icone-' + data.icone" [nome]="data.icone" />
+  </header>
+
+  <main class="modal-main">
+    <h2>{{ data.titulo }}</h2>
+
+    <span class="modal-mensagem">{{ data.mensagem }}</span>
+
+    @if (itens.length) {
+      <span class="modal-contador">
+        {{ itens.length }} {{ itens.length === 1 ? 'item' : 'itens' }}
+      </span>
+
+      <ul class="modal-lista" role="list">
+        @for (item of itens; track $index) {
+          <li class="lista-item">
+            <span class="lista-numero">{{ $index + 1 }}</span> 
+
+            <div class="lista-conteudo">
+              <span class="lista-rotulo">{{ rotulo(item) }}</span>
+
+              @if (detalhe(item); as descricao) {
+                <span class="lista-detalhe">{{ descricao }}</span> 
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    }
+
+    @if (data.erros?.length) {
+      <div class="modal-erros" role="alert">
+        @for (item of data.erros; track item) {
+          <span>{{ item }}</span>
+        }
+      </div>
+    }
+  </main>
+
+  <footer class="modal-footer">
+    <button type="button" class="modal-btn" (click)="fechar()">
+      {{ data.operacao ?? 'Ok' }}
+    </button>
+  </footer>
+</section>

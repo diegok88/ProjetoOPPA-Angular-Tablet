@@ -17,7 +17,7 @@ export class AlocacaoOperacionalService {
   buscarAlocacao(query: string): Observable<AlocacaoOperacionalModel> {
     return this.http.get<AlocacaoOperacionalModel>(`${this.apiUrl}/allocation?${query}`).pipe(
       tap((dado) => {
-        console.log(dado);
+        console.log('[ALOCAÇÃO]', dado);
         this.buscarAlocOperSignal.set(dado);
       }),
       catchError((error) => throwError(() => error)),

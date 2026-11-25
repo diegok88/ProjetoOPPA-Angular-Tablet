@@ -1,10 +1,11 @@
 import { Component, computed, HostListener, inject, signal } from '@angular/core';
-import { DialogoInputData, ResultadoDialogoInput } from '../../entities/dialogo-input.model';
+
 import { DialogFinalizarService } from '../../services/dialog-finalizar.service';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { firstValueFrom } from 'rxjs';
 import { IconesSvg } from '../icones-svg/icones-svg';
 import { extrairMensagens } from '../../util/error-api.util';
+import { DialogoInputData, ResultadoDialogoInput } from './anexos/dialogo-input.model';
 
 @Component({
   selector: 'app-dialogo-input',

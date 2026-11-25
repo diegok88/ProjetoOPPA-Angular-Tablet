@@ -116,6 +116,7 @@
 
       <article class="card" [ngClass]="cardClass(tipoEstadoAtual())" (click)="abrirModal()">
         <h2 class="card-title">Estado da Máquina</h2>
+
         <div class="status-row">
           <span class="state-icon" aria-hidden="true">
             @switch (tipoEstadoAtual()) {
@@ -184,6 +185,7 @@
               }
             }
           </span>
+
           <div>
             <p class="status-label">
               Status:
@@ -274,6 +276,7 @@
                 {{ action.label }}
               </button>
             }
+
             @if (feedback()) {
               <p class="action-feedback" role="alert">{{ feedback() }}</p>
             }
@@ -315,5 +318,46 @@
     </section>
   </main>
 
+  <!-- FOOTER -->
   <footer class="footer">Desenvolvido por DDK</footer>
+
+  <app-fluxo-ocorrencia #falhaFluxo [estadoAtual]="tipoEstadoAtual()" />
+  <app-fluxo-solicitacao #encarregadoFluxo [estadoAtual]="tipoEstadoAtual()" />
 </div>
+
+<!-- SNACKBAR: um único elemento, fixo, nunca recriado -->
+@if (snackbarTexto(); as texto) {
+  <div class="snackbar-aviso" role="status" aria-live="polite">
+    <span class="snackbar-icone" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <path
+          d="M20 6 9 17l-5-5"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </span>
+
+    <p class="snackbar-texto">{{ texto }}</p>
+
+    <button
+      type="button"
+      class="snackbar-fechar"
+      (click)="fecharSnackbar()"
+      aria-label="Fechar aviso"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M6 6l12 12M18 6L6 18"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+        />
+      </svg>
+    </button>
+  </div>
+}

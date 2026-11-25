@@ -37,7 +37,7 @@ export class ControleJornadaService {
 
   /** Regra do ciclo escrita uma única vez: saída encerra, demais ficam no signal */
   private aplicarCiclo(registro: ControleJornadaModel | null): void {
-    console.log('[service] aplicarCiclo recebeu:', registro); // remover após validar
+    //console.log('[service] aplicarCiclo recebeu:', registro); // remover após validar
     if (!registro || registro.tipoJornada === 'SAIDA_EXPEDIENTE') {
       this.buscarControleJornadaSignal.set(null);
     } else {

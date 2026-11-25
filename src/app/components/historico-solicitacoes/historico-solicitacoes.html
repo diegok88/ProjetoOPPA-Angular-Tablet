@@ -1,0 +1,364 @@
+<div class="app-shell">
+  <header class="header">
+    <button class="icon-btn" type="button" (click)="voltar()" aria-label="Voltar">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <line x1="19" y1="12" x2="5" y2="12" />
+        <polyline points="12 19 5 12 12 5" />
+      </svg>
+    </button>
+
+    <div class="company-block">
+      <h1 class="company">Histórico de Solicitações</h1>
+      <p class="muted">
+        @if (total() > 0) {
+          {{ total() }} de hoje ({{ dataReferencia }}) · página {{ paginaAtual() }} de
+          {{ totalPaginas() }} · {{ inicioRegistro() }}–{{ fimRegistro() }}
+        } @else {
+          Nenhuma solicitação hoje ({{ dataReferencia }})
+        }
+      </p>
+    </div>
+
+    <button
+      class="icon-btn"
+      type="button"
+      (click)="consultar()"
+      [disabled]="carregando()"
+      aria-label="Atualizar"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <polyline points="23 4 23 10 17 10" />
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+      </svg>
+    </button>
+  </header>
+
+  <main class="content">
+    <section class="filtros-card">
+      <div class="filtros">
+        <label class="campo">
+          <span class="campo-rotulo">Caixa</span>
+          <span class="campo-controle">
+            <select [value]="filtro().caixa" (change)="onCaixa($event)">
+              <option value="todas">Todas</option>
+              <option value="recebidas">Recebidas</option>
+              <option value="enviadas">Enviadas</option>
+            </select>
+          </span>
+        </label>
+
+        <label class="campo">
+          <span class="campo-rotulo">Recorte</span>
+          <span class="campo-controle">
+            <select [value]="filtro().desvios" (change)="onRecorte($event)">
+              @for (opcao of opcoesRecorte; track opcao.valor) {
+                <option [value]="opcao.valor">{{ opcao.label }}</option>
+              }
+            </select>
+          </span>
+        </label>
+
+        <label class="campo">
+          <span class="campo-rotulo">Situação</span>
+          <span class="campo-controle">
+            <select [value]="filtro().situacao" (change)="onSituacao($event)">
+              <option value="">Todas</option>
+              @for (opcao of opcoesSituacao; track opcao.valor) {
+                <option [value]="opcao.valor">{{ opcao.label }}</option>
+              }
+            </select>
+          </span>
+        </label>
+      </div>
+
+      <button class="limpar" type="button" (click)="limpar()" [disabled]="!temFiltroAtivo()">
+        Limpar filtros
+      </button>
+    </section>
+
+    @if (erroTexto()) {
+      <p class="aviso aviso-erro" role="alert">{{ erroTexto() }}</p>
+    }
+
+    <div class="lista">
+      @if (carregando() && !linhas().length) {
+        <p class="aviso aviso-cheio">Carregando solicitações de hoje...</p>
+      } @else if (!linhas().length && !erroTexto()) {
+        <div class="aviso aviso-cheio">
+          <p>Nenhuma solicitação hoje com esses filtros.</p>
+          @if (temFiltroAtivo()) {
+            <button type="button" class="limpar" (click)="limpar()">Limpar filtros</button>
+          }
+        </div>
+      } @else {
+        @for (linha of linhas(); track linha.id) {
+          <article class="solicitacao" [class.pendente]="linha.situacao === 'PENDENTE'">
+            <header class="linha-topo">
+              <span class="icone">
+                @if (relacaoDe(linha) === 'recebida') {
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+                    <path
+                      d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"
+                    />
+                  </svg>
+                } @else {
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M22 2 11 13" />
+                    <path d="M22 2 15 22l-4-9-9-4 20-7z" />
+                  </svg>
+                }
+              </span>
+
+              <div class="identidade">
+                <h3>{{ tituloLinha(linha) }}</h3>
+                <p class="pessoa">
+                  {{ pessoaDe(linha) }}
+                  @if (crachaDe(linha); as numero) {
+                    <span class="cracha">{{ numero }}</span>
+                  }
+                </p>
+              </div>
+
+              <span [class]="classeSituacao(linha.situacao)">
+                {{ rotuloSituacao(linha.situacao) }}
+              </span>
+            </header>
+
+            <dl class="dados">
+              <div>
+                <dt>Enviada</dt>
+                <dd>{{ formatarData(linha.dataEnvio) }}</dd>
+              </div>
+
+              @if (nomeTag(linha) !== '—') {
+                <div>
+                  <dt>Ativo</dt>
+                  <dd>{{ nomeTag(linha) }}</dd>
+                </div>
+              }
+
+              @if (linha.dataResposta) {
+                <div>
+                  <dt>Respondida</dt>
+                  <dd>{{ formatarData(linha.dataResposta) }}</dd>
+                </div>
+              }
+            </dl>
+
+            @if (relacaoDe(linha) === 'recebida' && linha.dataVisualizacao) {
+              <p class="marca-leitura">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+                <span>Visualizada em {{ formatarData(linha.dataVisualizacao) }}</span>
+              </p>
+            } @else if (relacaoDe(linha) === 'recebida' && linha.situacao === 'PENDENTE') {
+              <p class="marca-leitura marca-nova">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+                  />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                <span>Não visualizada</span>
+              </p>
+            }
+
+            @if (linha.observacao) {
+              <p class="observacao">{{ linha.observacao }}</p>
+            }
+
+            @if (acoesLinha(linha).length) {
+              <div class="acoes">
+                @for (botao of acoesLinha(linha); track botao.acao) {
+                  <button
+                    type="button"
+                    class="acao"
+                    [class.acao-negativa]="botao.perigo"
+                    [class.acao-positiva]="!botao.perigo"
+                    [disabled]="processando() === linha.id"
+                    (click)="executarAcao(linha, botao.acao)"
+                  >
+                    @if (botao.acao === 'ACEITAR') {
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.4"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    } @else {
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.4"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
+                    }
+                    <span>{{ processando() === linha.id ? 'Enviando...' : botao.label }}</span>
+                  </button>
+                }
+              </div>
+            }
+          </article>
+        }
+      }
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="por-pagina">
+      <span>Por página</span>
+      <select [value]="filtro().size" (change)="trocarTamanho($event)">
+        @for (opcao of opcoesTamanho; track opcao) {
+          <option [value]="opcao">{{ opcao }}</option>
+        }
+      </select>
+    </div>
+
+    <nav class="paginas" aria-label="Paginação">
+      <button
+        type="button"
+        aria-label="Página anterior"
+        (click)="anterior()"
+        [disabled]="paginaAtual() <= 1 || carregando()"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+      </button>
+
+      @for (p of paginas(); track $index) {
+        @if (p === '…') {
+          <span class="reticencias">…</span>
+        } @else {
+          <button
+            type="button"
+            [class.ativa]="p === paginaAtual()"
+            [attr.aria-current]="p === paginaAtual() ? 'page' : null"
+            (click)="irPara(p)"
+            [disabled]="carregando()"
+          >
+            {{ p }}
+          </button>
+        }
+      }
+
+      <button
+        type="button"
+        aria-label="Próxima página"
+        (click)="proxima()"
+        [disabled]="paginaAtual() >= totalPaginas() || carregando()"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
+      </button>
+    </nav>
+  </footer>
+</div>
+
+@if (alvo(); as linha) {
+  <div class="modal-fundo" (click)="fecharModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h3 class="modal-titulo">{{ tituloModal() }}</h3>
+      <p class="modal-texto">
+        {{ linha.solicitante?.nome ?? 'Colaborador' }} · {{ tituloLinha(linha) }}
+      </p>
+
+      @if (acaoAtual() !== 'CANCELAR') {
+        <textarea
+          class="modal-area"
+          placeholder="Observação (opcional)"
+          [value]="observacao()"
+          (input)="onObservacao($event)"
+          [attr.maxlength]="limiteObservacao"
+        ></textarea>
+        <p class="modal-contador">{{ observacao().length }}/{{ limiteObservacao }}</p>
+      } @else {
+        <p class="modal-texto">A solicitação será cancelada e não poderá ser respondida.</p>
+      }
+
+      <div class="modal-acoes">
+        <button type="button" class="modal-botao" (click)="fecharModal()">Voltar</button>
+        <button
+          type="button"
+          class="modal-botao"
+          [class.modal-botao-sucesso]="acaoAtual() === 'ACEITAR'"
+          [class.modal-botao-perigo]="acaoAtual() !== 'ACEITAR'"
+          [disabled]="processando() === linha.id"
+          (click)="confirmar()"
+        >
+          {{ processando() === linha.id ? 'Enviando...' : 'Confirmar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

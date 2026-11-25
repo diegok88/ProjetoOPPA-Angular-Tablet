@@ -1,0 +1,104 @@
+:host {
+  --snack-bg: #0f4275;
+  --snack-border: rgba(255, 255, 255, 0.18);
+  --snack-text: #e0e8e6;
+  --snack-accent: #00ff66;
+  --snack-muted: rgba(255, 255, 255, 0.7);
+
+  position: fixed;
+  left: 50%;
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: block;
+  width: min(92vw, 420px);
+  pointer-events: none;
+  animation: snackbar-entrar 0.2s ease-out;
+}
+
+.snackbar {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.7rem 0.7rem 0.7rem 0.9rem;
+  background: var(--snack-bg);
+  border: 1px solid var(--snack-border);
+  border-left: 3px solid var(--snack-accent);
+  border-radius: 14px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+  color: var(--snack-text);
+  font-family:
+    'Roboto',
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
+.snackbar-icone {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: var(--snack-accent);
+
+  svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+}
+
+.snackbar-texto {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.snackbar-fechar {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--snack-muted);
+  cursor: pointer;
+  touch-action: manipulation;
+
+  svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  &:hover {
+    color: var(--snack-text);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  &:active {
+    transform: scale(0.94);
+  }
+}
+
+@keyframes snackbar-entrar {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host {
+    animation: none;
+  }
+}

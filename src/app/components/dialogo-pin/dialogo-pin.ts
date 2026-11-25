@@ -1,10 +1,10 @@
 import { Component, computed, HostListener, inject, signal } from '@angular/core';
 import { IconesSvg } from '../icones-svg/icones-svg';
-import { DialogoPinData } from '../../entities/dialogo-pin.model';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { firstValueFrom } from 'rxjs';
 import { DialogFinalizarService } from '../../services/dialog-finalizar.service';
 import { extrairMensagens } from '../../util/error-api.util';
+import { DialogoPinData } from './anexos/dialogo-pin.model';
 
 @Component({
   selector: 'app-dialogo-pin',
